@@ -1,0 +1,14 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Stage display</title>
+<style>
+html,body{margin:0;height:100%;background:#000;color:#fff;font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden;cursor:none}
+body{display:flex;flex-direction:column;padding:3vh 4vw;gap:2vh}
+#c{font-size:5vh;color:#ffb36b}
+#n{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;font-size:7vh;line-height:1.25;white-space:pre-line}
+#x{font-size:3.6vh;color:#9a93a8;white-space:pre-line}
+</style></head><body>
+<div id="c"></div><div id="n"></div><div id="x"></div>
+<script>
+const clock=()=>document.getElementById('c').textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+clock();setInterval(clock,1000);
+studio.onState(s=>{document.getElementById('n').textContent=s.liveText||'';document.getElementById('x').textContent=s.next?'Next: '+s.next:''});
+</script></body></html>

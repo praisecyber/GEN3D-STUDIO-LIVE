@@ -1,0 +1,12 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {transition,advance,progress,removeSource} from '../src/switcher.mjs';
+const state={preview:'camera',program:'black',fade:null};
+test('Cut swaps Program and Preview immediately',()=>{assert.deepEqual(transition(state,'camera',0,10),{program:'camera',preview:'black',fade:null});});
+test('Fade keeps old Program until complete and then swaps',()=>{const s=transition(state,'camera',700,100);assert.equal(advance(s,799),s);assert.equal(progress(s.fade,450),.5);assert.deepEqual(advance(s,800),{program:'camera',preview:'black',fade:null});});
+test('Repeated takes cannot interrupt an active fade',()=>{const s=transition(state,'camera',700,100);assert.equal(transition(s,'black',0,300),s);});
+test('Taking Program to itself does nothing',()=>{assert.equal(transition(state,'black',700,100),state);});
+test('Disconnected Program returns to Black',()=>{assert.deepEqual(removeSource({program:'camera',preview:'other',fade:null},'camera'),{program:'black',preview:'other',fade:null});});
+test('Disconnect during fade cancels fade and removes unavailable Preview',()=>{const s=transition(state,'camera',700,100);assert.deepEqual(removeSource(s,'camera'),{program:'black',preview:'black',fade:null});});
+test('An unrelated source removal preserves the transition',()=>{const s=transition(state,'camera',700,100);assert.equal(removeSource(s,'other').fade,s.fade);});
+test('Fade progress is clamped at both boundaries',()=>{const s=transition(state,'camera',700,100);assert.equal(progress(s.fade,0),0);assert.equal(progress(s.fade,1000),1);});
