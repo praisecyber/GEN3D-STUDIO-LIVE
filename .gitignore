@@ -1,0 +1,9 @@
+node_modules/
+desktop/renderer/dist/
+.env
+.env.*
+!.env.example
+*.log
+*.part
+.DS_Store
+Thumbs.db
