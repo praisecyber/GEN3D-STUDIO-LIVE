@@ -1,0 +1,15 @@
+(function(root){
+ const empty=()=>({members:[],plans:[],history:[],groups:{}});
+ const text=(value,max=200)=>{if(typeof value!=='string'||!value.trim()||value.length>max)throw Error('Invalid ministry planning text.');return value.trim();};
+ function date(value){if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value)||new Date(value+'T12:00:00Z').toISOString().slice(0,10)!==value)throw Error('Choose a valid service date.');return value;}
+ function validate(data){if(!data||!Array.isArray(data.members)||!Array.isArray(data.plans)||!Array.isArray(data.history)||!data.groups||typeof data.groups!=='object'||data.members.length>2000||data.plans.length>2000||data.history.length>10000)throw Error('Invalid ministry planning backup.');
+  const members=data.members.map(m=>({id:text(m.id),name:text(m.name,100)}));
+  const plans=data.plans.map(p=>{if(!Array.isArray(p.queue)||!Array.isArray(p.assignments)||p.queue.length>1000||p.assignments.length>200)throw Error('Invalid service plan.');return {id:text(p.id),title:text(p.title),date:date(p.date),queue:p.queue.map(q=>{if(!['songs','bible','media'].includes(q.tab))throw Error('Invalid service item.');return {tab:q.tab,title:text(q.title,300)};}),assignments:p.assignments.map(a=>({memberId:text(a.memberId),name:text(a.name,100),role:text(a.role,100)}))};});
+  const history=data.history.map(h=>{if(!Number.isFinite(Date.parse(h.at)))throw Error('Invalid song history date.');return {id:text(h.id),title:text(h.title,300),at:h.at};});
+  const groups=Object.fromEntries(Object.entries(data.groups).map(([key,tags])=>{if(!Array.isArray(tags)||tags.length>10)throw Error('Invalid song groups.');return [text(key,300),tags.map(tag=>text(tag,40))];}));return {members,plans,history,groups};
+ }
+ function weeklyDates(first,count){date(first);if(!Number.isInteger(count)||count<1||count>52)throw Error('Choose 1–52 weekly occurrences.');return Array.from({length:count},(_,i)=>new Date(Date.parse(first+'T12:00:00Z')+i*7*86400000).toISOString().slice(0,10));}
+ function report(data){const songs=new Map(),members=new Map();for(const h of data.history){const row=songs.get(h.title)||{title:h.title,played:0,scheduled:0};row.played++;songs.set(h.title,row);}for(const p of data.plans){for(const q of p.queue)if(q.tab==='songs'){const row=songs.get(q.title)||{title:q.title,played:0,scheduled:0};row.scheduled++;songs.set(q.title,row);}for(const a of p.assignments){const row=members.get(a.memberId)||{name:a.name,scheduled:0};row.scheduled++;members.set(a.memberId,row);}}return {songs:[...songs.values()].sort((a,b)=>b.played-a.played||a.title.localeCompare(b.title)),members:[...members.values()].sort((a,b)=>b.scheduled-a.scheduled||a.name.localeCompare(b.name))};}
+ function csv(rows){return rows.map(row=>row.map(value=>{let text=String(value??'');if(/^[=+@-]/.test(text))text="'"+text;return '"'+text.replace(/"/g,'""')+'"';}).join(',')).join('\r\n');}
+ const api={empty,validate,weeklyDates,report,csv};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.Gen3DAdmin=api;
+})(globalThis);

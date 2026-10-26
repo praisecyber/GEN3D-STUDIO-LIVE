@@ -1,0 +1,3 @@
+package com.gen3d.remote.tests;
+import android.app.*;import android.os.*;import android.webkit.*;
+public class ProbeActivity extends Activity{public volatile String result="loading";WebView web;public void onCreate(Bundle b){super.onCreate(b);web=new WebView(this);setContentView(web);web.getSettings().setJavaScriptEnabled(true);web.setWebViewClient(new WebViewClient(){public void onPageFinished(WebView v,String url){v.evaluateJavascript("1+1",value->{result=value;});}public boolean onRenderProcessGone(WebView view,RenderProcessGoneDetail detail){result="stock renderer crashed";view.destroy();return true;}});web.loadData("<!doctype html><html><body>Stock WebView probe</body></html>","text/html","UTF-8");}}

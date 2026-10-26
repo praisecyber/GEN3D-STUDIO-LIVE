@@ -1,0 +1,6 @@
+// Runs outside the operator process so runtime failures cannot crash the workspace.
+const {NdiRuntime}=require('./ndi-runtime');let runtime,closing=false,started=0,last=0,timer;
+function close(){if(closing)return;closing=true;clearTimeout(timer);try{runtime?.close();}catch{}process.disconnect?.();}
+function tick(){if(closing)return;try{last=Date.now();const frame=runtime.capture();if(!frame.video&&Date.now()-started>15000)throw Error('No video received from the NDI source.');process.send({type:'frame',...frame});}catch{process.send({type:'error',message:'NDI video ended, changed to an unsupported format, or could not decode.'});close();}}
+process.on('message',message=>{if(message.type==='stop'){close();return;}if(message.type==='next'){timer=setTimeout(tick,Math.max(0,1000/30-(Date.now()-last)));return;}if(message.type!=='init')return;try{runtime=new NdiRuntime(message.library);if(message.mode==='discover'){const sources=runtime.discover(1200,message.extra);process.send({type:'sources',sources,version:runtime.version()});close();}else{runtime.connect(message.source);started=Date.now();tick();}}catch{process.send({type:'error',message:'NDI runtime could not initialize. Choose a compatible installed NDI 6 runtime.'});close();}});
+process.on('disconnect',close);process.on('SIGTERM',()=>{close();process.exit(0);});

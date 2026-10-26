@@ -1,0 +1,3 @@
+const {createRemoteServer}=require('../../../desktop/remote-server');
+const state={liveText:'Android live test',next:'Next test verse',library:[{tab:'songs',item:0,title:'Android test hymn',slides:['First Android verse','Second Android verse']}],administration:{plans:[],reports:{songs:[]}},production:{program:'black',preview:'test',sources:[{id:'black',name:'Black'},{id:'test',name:'Android pattern'}]}};
+createRemoteServer({port:9878,host:'127.0.0.1',pin:'1234',getState:()=>state,onCommand:command=>console.log('Fixture command:',JSON.stringify(command))});console.log('Android local fixture ready on port 9878 (test PIN 1234).');

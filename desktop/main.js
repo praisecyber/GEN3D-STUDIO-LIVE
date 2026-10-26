@@ -1,22 +1,39 @@
 const { app, BrowserWindow, screen, ipcMain, dialog, shell, desktopCapturer, session } = require('electron');
 const { pathToFileURL } = require('url');
 const { parsePptx } = require('./pptx');
+const {VisualDecks}=require('./visual-decks');
+let visualDecks;
 const path = require('path');
 const fs = require('fs/promises');
 const os = require('os');
-const { WebSocketServer } = require('ws');
+const {NetworkInputs}=require('./network-inputs');
+const {BrowserInputs}=require('./browser-inputs');
+const networkInputs=new NetworkInputs();
+const {NdiInputs}=require('./ndi-inputs');
+const ndiInputs=new NdiInputs();
+const browserInputs=new BrowserInputs(BrowserWindow,frame=>{if(operator&&!operator.isDestroyed())operator.webContents.send('browserInputFrame',frame);},id=>{if(operator&&!operator.isDestroyed())operator.webContents.send('browserInputEnded',id);});
+const { createRemoteServer } = require('./remote-server');
 
+const {HolyricsImport}=require('./holyrics-import');
+const holyricsImport=new HolyricsImport();
+const {cloudBackup}=require('./cloud-backup');
+const {VirtualCamera}=require('./virtual-camera');
+const virtualCamera=new VirtualCamera();
+const {IsoStore}=require('./iso-store');
+const isoStore=new IsoStore();let isoDialogOpen=false;
 const { RecordingStore } = require('./recording-store');
 const recordingStore = new RecordingStore();
 const {StreamingEngine,probeFFmpeg}=require('./streaming-engine');
 const streamingEngine=new StreamingEngine(status=>{if(operator&&!operator.isDestroyed()){try{operator.webContents.send('streamStatus',status);}catch{}}});
-let ffmpegExecutable='ffmpeg';
+const bundledFFmpeg=app.isPackaged?path.join(process.resourcesPath,'ffmpeg','ffmpeg.exe'):path.join(__dirname,'vendor','ffmpeg','windows','ffmpeg.exe');
+let ffmpegExecutable=process.platform==='win32'&&require('node:fs').existsSync(bundledFFmpeg)?bundledFFmpeg:'ffmpeg';
 let streamingStarting=false;
 let recordingDialogOpen = false;
 
 const PORT = 8787;
 const PIN = String(Math.floor(1000 + Math.random() * 9000));
-let operator, output, stage;
+let operator, output, stage, stageDisplays;
+const {StageDisplays}=require('./stage-displays');
 let outputMode = 'projection';
 let selectedCapture=null;
 let state = { liveText: '', avatar: false, next: '', library: [] };
@@ -41,7 +58,8 @@ function makeWindow(file, display, windowed) {
 }
 
 function broadcast() {
-  for (const w of [output, stage]) if (w && !w.isDestroyed()) w.webContents.send('state', state);
+  for (const w of [output]) if (w && !w.isDestroyed()) w.webContents.send('state', state);
+  stageDisplays?.broadcast();
   const msg = JSON.stringify({ type: 'state', state });
   for (const c of clients) if (c.readyState === 1) c.send(msg);
 }
@@ -52,6 +70,7 @@ app.whenReady().then(() => {
     if(!operator||request.frame!==operator.webContents.mainFrame||!selected||Date.now()>selected.expires){callback({});return;}
     try{const sources=await desktopCapturer.getSources({types:['screen','window'],thumbnailSize:{width:0,height:0}});const source=sources.find(s=>s.id===selected.id);callback(source?{video:source}:{});}catch{callback({});}
   });
+  visualDecks=new VisualDecks(path.join(app.getPath('userData'),'visual-decks'),{nativeScript:app.isPackaged?path.join(process.resourcesPath,'native','powerpoint-export.ps1'):path.join(__dirname,'native','powerpoint-export.ps1')});
   const displays = screen.getAllDisplays();
   const primary = screen.getPrimaryDisplay();
   const external = displays.filter(d => d.id !== primary.id);
@@ -63,10 +82,15 @@ app.whenReady().then(() => {
   // 2nd display = projector, 3rd = stage. With fewer screens, open windowed so you can test.
   output = makeWindow('output.html', external[0] || primary, !external[0]);
   stage = makeWindow('stage.html', external[1] || external[0] || primary, !external[1]);
+  stageDisplays=new StageDisplays({screen,makeWindow:display=>makeWindow('stage.html',display,true),file:path.join(app.getPath('userData'),'stage-displays.json'),getState:()=>state});
+  stageDisplays.initialize(stage,external[1]||external[0]||primary);
+  screen.on('display-removed',()=>{for(const entry of stageDisplays.entries.values())stageDisplays.position(entry);});
+  operator.on('closed',()=>{stageDisplays?.dispose();void ndiInputs.dispose();browserInputs.dispose();void networkInputs.dispose();if(output&&!output.isDestroyed())output.destroy();if(stage&&!stage.isDestroyed())stage.destroy();});
   operator.on('close', event => {
-    if (recordingStore.active || recordingDialogOpen || streamingEngine.active || streamingStarting) { event.preventDefault(); operator.webContents.send('recordingCloseRequested'); }
+    if (recordingStore.active || recordingDialogOpen || isoStore.stores.size || isoDialogOpen || streamingEngine.active || streamingStarting) { event.preventDefault(); operator.webContents.send('recordingCloseRequested'); }
   });
   operator.webContents.on('render-process-gone',()=>{
+    browserInputs.dispose();void networkInputs.dispose();void isoStore.abortAll();
     if(recordingStore.active)recordingStore.abort(recordingStore.active.id).catch(console.error);
     if(streamingEngine.active)streamingEngine.stop(streamingEngine.active.id).catch(console.error);
   });
@@ -75,7 +99,9 @@ app.whenReady().then(() => {
   stage.webContents.once('did-finish-load', broadcast);
 });
 
-ipcMain.on('publish', (e, s) => { if (e.sender !== operator?.webContents) return; state = s; operator.webContents.send('projectionState',{liveText:state.liveText||''}); broadcast(); });
+ipcMain.on('publish', (e, s) => { if (e.sender !== operator?.webContents) return; state = {...s,production:state.production}; operator.webContents.send('projectionState',{liveText:state.liveText||''}); broadcast(); });
+ipcMain.handle('stageDisplays',event=>{requireStageOperator(event);return stageDisplays.list();});
+ipcMain.handle('configureStageDisplay',(event,{action,config})=>{requireStageOperator(event);return stageDisplays.change(action,config);});
 ipcMain.handle('info', () => ({ ip: lanIp(), port: PORT, pin: PIN }));
 ipcMain.handle('openExternal', async (_e, rawUrl) => {
   const u = new URL(String(rawUrl));
@@ -106,6 +132,9 @@ ipcMain.handle('importProject', async () => {
   return project;
 });
 
+ipcMain.handle('readHolyricsSongs',(event,config)=>{requireStageOperator(event);return holyricsImport.read(config);});
+ipcMain.handle('cancelHolyricsImport',event=>{requireStageOperator(event);holyricsImport.cancel();});
+ipcMain.handle('importVisualPptx',async event=>{requireStageOperator(event);const result=await dialog.showOpenDialog(operator,{title:'Import visual PowerPoint deck',properties:['openFile'],filters:[{name:'PowerPoint',extensions:['pptx']}]});if(result.canceled||!result.filePaths[0])return null;return visualDecks.import(result.filePaths[0]);});
 ipcMain.handle('importPptx', async () => {
   const r = await dialog.showOpenDialog(operator, { properties: ['openFile'], filters: [{ name: 'PowerPoint', extensions: ['pptx'] }] });
   if (r.canceled) return null;
@@ -120,24 +149,12 @@ ipcMain.handle('pickMedia', async () => {
     type: /\.(mp4|webm|mov)$/i.test(f) ? 'video' : /\.(mp3|wav|ogg|m4a)$/i.test(f) ? 'audio' : 'image' }));
 });
 
-// Remote control server for the Expo phone app
-const wss = new WebSocketServer({ port: PORT });
-wss.on('connection', ws => {
-  let authed = false;
-  ws.on('message', raw => {
-    let m; try { m = JSON.parse(raw); } catch { return; }
-    if (!authed) {
-      if (m.type === 'hello' && m.pin === PIN) {
-        authed = true; clients.add(ws);
-        ws.send(JSON.stringify({ type: 'state', state }));
-      } else ws.close();
-      return;
-    }
-    if (m.type === 'cmd' && operator && !operator.isDestroyed())
-      operator.webContents.send('command', m);
-  });
-  ws.on('close', () => clients.delete(ws));
-});
+// Browser and Expo remotes share the existing PIN-authenticated control channel.
+const remote = createRemoteServer({port:PORT,pin:PIN,clients,getState:()=>state,onCommand:message=>{
+  if(operator&&!operator.isDestroyed())operator.webContents.send(message.cmd.startsWith('production')?'productionCommand':'command',message);
+},onProgramSignal:(target,signal)=>{if(operator&&!operator.isDestroyed())operator.webContents.send('programSignal',{target,signal});}});
+remote.server.on('error',error=>console.error('Phone remote unavailable:',error.message));
+
 
 // Program video and mixed audio output: relay signaling between the React operator and projector.
 // The compositor's MediaStream stays in WebRTC, rather than IPC image buffers.
@@ -173,6 +190,11 @@ ipcMain.on('setOutputMode', (event, mode) => {
   if (output && !output.isDestroyed()) output.webContents.send('outputMode', mode);
 });
 
+function requireStageOperator(event){
+  const frame=event.senderFrame,main=operator?.webContents.mainFrame;
+  const projection=frame?.parent===main&&frame.url===pathToFileURL(path.join(__dirname,'renderer','operator.html')).href;
+  if(event.sender!==operator?.webContents||!(frame===main||projection))throw Error('Only the operator workspace can manage stage displays.');
+}
 function requireOperator(event) {
   if(event.sender!==operator?.webContents || event.senderFrame!==operator.webContents.mainFrame)
     throw Error('Only the operator workspace can control Program outputs.');
@@ -194,10 +216,10 @@ ipcMain.handle('finishRecording', async(event,id)=>{requireOperator(event);retur
 ipcMain.handle('abortRecording', async(event,id)=>{requireOperator(event);return recordingStore.abort(id);});
 ipcMain.on('recordingReadyToClose',event=>{
   try {requireOperator(event);} catch {return;}
-  if(!recordingStore.active&&!recordingDialogOpen&&!streamingEngine.active&&!streamingStarting)app.quit();
+  if(!recordingStore.active&&!recordingDialogOpen&&!isoStore.stores.size&&!isoDialogOpen&&!streamingEngine.active&&!streamingStarting)app.quit();
 });
 app.on('before-quit',event=>{
-  if(recordingStore.active||recordingDialogOpen||streamingEngine.active||streamingStarting){event.preventDefault();if(operator&&!operator.isDestroyed())operator.webContents.send('recordingCloseRequested');}
+  if(recordingStore.active||recordingDialogOpen||isoStore.stores.size||isoDialogOpen||streamingEngine.active||streamingStarting){event.preventDefault();if(operator&&!operator.isDestroyed())operator.webContents.send('recordingCloseRequested');}
 });
 
 ipcMain.handle('ffmpegInfo',async event=>{requireOperator(event);return probeFFmpeg(ffmpegExecutable);});
@@ -229,3 +251,40 @@ ipcMain.handle('pickLogo',async event=>{
   requireOperator(event);const result=await dialog.showOpenDialog(operator,{title:'Choose Program logo',properties:['openFile'],filters:[{name:'Logo image',extensions:['png','jpg','jpeg','webp']}]});
   if(result.canceled||!result.filePaths[0])return null;const file=result.filePaths[0];return {name:path.basename(file),url:pathToFileURL(file).href,type:'image'};
 });
+
+ipcMain.handle('discoverNdiSources',(event,ips)=>{requireOperator(event);return ndiInputs.discover(ips);});
+ipcMain.handle('chooseNdiRuntime',async event=>{requireOperator(event);const selected=await dialog.showOpenDialog(operator,{title:'Choose installed NDI 6 runtime library',properties:['openFile'],filters:[{name:'NDI runtime',extensions:process.platform==='win32'?['dll']:['so','6','dylib']}]});if(selected.canceled||!selected.filePaths[0])return null;ndiInputs.setLibrary(selected.filePaths[0]);return ndiInputs.discover();});
+ipcMain.handle('startNdiInput',async(event,id)=>{requireOperator(event);await probeFFmpeg(ffmpegExecutable);return ndiInputs.start(id,ffmpegExecutable);});
+ipcMain.handle('stopNdiInput',(event,id)=>{requireOperator(event);return ndiInputs.stop(id);});
+ipcMain.handle('startNetworkInput',async(event,url)=>{requireOperator(event);await probeFFmpeg(ffmpegExecutable);return networkInputs.start(url,ffmpegExecutable);});
+ipcMain.handle('stopNetworkInput',async(event,id)=>{requireOperator(event);return networkInputs.stop(id);});
+ipcMain.handle('startBrowserInput',async(event,url)=>{requireOperator(event);return browserInputs.start(url);});
+ipcMain.handle('stopBrowserInput',async(event,id)=>{requireOperator(event);browserInputs.stop(id);});
+app.on('before-quit',event=>{if(event.defaultPrevented)return;if(virtualCamera.active){event.preventDefault();void virtualCamera.stop().finally(()=>app.quit());return;}browserInputs.dispose();void networkInputs.dispose();void isoStore.abortAll();});
+
+ipcMain.handle('beginIsoRecording',async(event,sources)=>{requireOperator(event);if(isoDialogOpen||isoStore.stores.size)throw Error('ISO recording is already open.');isoDialogOpen=true;try{const result=await dialog.showOpenDialog(operator,{title:'Choose ISO recording folder',properties:['openDirectory','createDirectory']});if(result.canceled||!result.filePaths[0])return {canceled:true};return await isoStore.begin(result.filePaths[0],sources);}finally{isoDialogOpen=false;}});
+ipcMain.handle('writeIsoRecording',async(event,payload)=>{requireOperator(event);return isoStore.append(payload.id,payload.chunk);});
+ipcMain.handle('finishIsoRecording',async(event,id)=>{requireOperator(event);return isoStore.finish(id);});
+ipcMain.handle('abortIsoRecording',async(event,id)=>{requireOperator(event);return isoStore.abort(id);});
+
+ipcMain.on('programSignal',(event,{target,signal})=>{try{requireOperator(event);}catch{return;}remote.sendProgramSignal(target,signal);});
+
+ipcMain.handle('startVirtualCamera',async(event,password)=>{requireOperator(event);return virtualCamera.start(`http://127.0.0.1:${PORT}/program?token=${remote.programToken}`,password);});
+ipcMain.handle('stopVirtualCamera',async event=>{requireOperator(event);return virtualCamera.stop();});
+
+ipcMain.on('publishProduction',(event,production)=>{try{requireOperator(event);}catch{return;}state={...state,production};broadcast();});
+
+ipcMain.handle('choosePresenterModel',async event=>{requireOperator(event);const result=await dialog.showOpenDialog(operator,{title:'Choose self-contained GLB avatar',properties:['openFile'],filters:[{name:'GLB avatar',extensions:['glb']}]});if(result.canceled||!result.filePaths[0])return null;return {name:path.basename(result.filePaths[0]),url:pathToFileURL(result.filePaths[0]).href};});
+ipcMain.on('presenterError',(event,message)=>{if(event.sender===output?.webContents&&operator&&!operator.isDestroyed())operator.webContents.send('presenterError',String(message).slice(0,300));});
+
+ipcMain.on('presenterAudioEnded',(event,id)=>{if(event.sender===output?.webContents&&operator&&!operator.isDestroyed())operator.webContents.send('presenterAudioEnded',id);});
+
+ipcMain.handle('uploadCloudBackup',async(event,config)=>{requireOperator(event);return cloudBackup(config,'PUT');});
+ipcMain.handle('downloadCloudBackup',async(event,config)=>{requireOperator(event);return cloudBackup(config,'GET');});
+
+// Preserve configured stage windows before Electron closes them during application shutdown.
+app.on('before-quit',event=>{if(!event.defaultPrevented&&stageDisplays){stageDisplays.save();stageDisplays.disposing=true;}});
+
+let ndiQuitting=false;app.on('before-quit',event=>{if(event.defaultPrevented)return;if(ndiInputs.sessions.size&&!ndiQuitting){event.preventDefault();ndiQuitting=true;void ndiInputs.dispose().finally(()=>app.quit());}});
+
+app.on('before-quit',()=>holyricsImport.cancel());

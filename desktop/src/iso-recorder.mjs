@@ -1,0 +1,14 @@
+import {ProgramRecorder} from './recorder.mjs';
+export class IsoRecorder{
+ constructor(engine,mixer,bridge,onChange){this.engine=engine;this.mixer=mixer;this.bridge=bridge;this.onChange=onChange;this.state={phase:'idle',files:[],error:'',folder:''};this.records=[];}
+ emit(patch){Object.assign(this.state,patch);this.onChange({...this.state});}
+ start(ids){if(this.starting||['recording','choosing','stopping'].includes(this.state.phase))return this.starting;this.starting=this.begin(ids).finally(()=>this.starting=null);return this.starting;}
+ async begin(ids){this.emit({phase:'choosing',files:[],error:'',folder:''});let batch;this.records=[];
+  try{const sources=ids.map(id=>this.engine.sources.get(id));if(!sources.length||sources.some(s=>!s||s.id==='black'))throw Error('Choose at least one available non-black input.');batch=await this.bridge.beginIsoRecording(sources.map(({id,name})=>({id,name})));if(batch.canceled){this.emit({phase:'idle'});return;}
+   this.emit({folder:batch.folder});for(const row of batch.inputs){const canvas=document.createElement('canvas');canvas.width=1280;canvas.height=720;const audio=this.mixer.isolatedAudio(row.sourceId),record={row,canvas,audio};this.records.push(record);record.recorder=new ProgramRecorder(canvas,{enable:()=>this.mixer.enable(),destination:{stream:audio.stream}},{beginRecording:async()=>row,writeRecording:data=>this.bridge.writeIsoRecording(data),finishRecording:id=>this.bridge.finishIsoRecording(id),abortRecording:id=>this.bridge.abortIsoRecording(id)},()=>{});}
+   const draw=now=>{for(const record of this.records)this.engine.draw(record.canvas.getContext('2d'),record.row.sourceId,now);this.frame=requestAnimationFrame(draw);};draw(performance.now());await Promise.all(this.records.map(record=>record.recorder.start()));const failed=this.records.find(record=>record.recorder.state.phase!=='recording');if(failed)throw Error(failed.recorder.state.error||'An ISO encoder could not start.');this.emit({phase:'recording'});
+  }catch(error){await Promise.all(this.records.map(record=>record.recorder.stop()));if(batch?.inputs)await Promise.all(batch.inputs.map(row=>this.bridge.abortIsoRecording(row.id).catch(()=>{})));this.release();this.emit({phase:'error',error:error.message});}
+ }
+ async stop(){if(this.starting)await this.starting;if(this.stopping)return this.stopping;if(this.state.phase!=='recording')return;this.stopping=(async()=>{this.emit({phase:'stopping'});await Promise.all(this.records.map(record=>record.recorder.stop()));const states=this.records.map(record=>record.recorder.state),failed=states.filter(state=>state.phase==='error');this.emit({phase:failed.length?'error':'saved',files:states.map(s=>s.filePath),error:failed.map(s=>s.error).join('\n')});this.release();})().finally(()=>this.stopping=null);return this.stopping;}
+ release(){cancelAnimationFrame(this.frame);for(const record of this.records)record.audio.release();this.records=[];}
+}

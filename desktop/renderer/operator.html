@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head><script>
 // The preserved projection page shares the React shell preload bridge.
 if (window.parent !== window) { window.studio = window.parent.studio; }
@@ -57,42 +57,46 @@ textarea{min-height:110px;resize:vertical}
 @media(max-width:1100px){main{grid-template-columns:1fr}.list{max-height:30vh}.slides{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+<link rel="stylesheet" href="./projection.css">
 </head>
 <body>
 <header>
-  <h1>Gen3D Studio Live</h1><span>Projection Studio · MVP preview</span><div class="sp"></div>
+  <div><span class="workspace-kicker">WORSHIP WORKSPACE</span><h1>Projection Studio</h1></div><span class="workspace-description">Prepare the service. Present with confidence.</span><div class="sp"></div>
   <span id="liveStatus" role="status">● STANDBY</span><button id="themeBtn">Switch theme</button>
 </header>
 <main>
-  <section aria-label="Library">
+  <section aria-label="Library" class="library-panel">
+    <h2>Content library</h2><p class="note">Choose content to prepare your slides.</p>
     <div class="tabs"><button id="tSongs" class="on">Songs</button><button id="tBible">Bible</button><button id="tMedia">Media</button></div>
     <input id="librarySearch" type="text" placeholder="Search songs, Bible and media…" aria-label="Search library" style="margin:0 0 8px">
     <div id="list" class="list"></div>
-    <h2 style="margin-top:14px">Add a song</h2>
+    <details class="tool-drawer"><summary>Add a song</summary>
     <input id="newTitle" type="text" placeholder="Song title">
     <textarea id="newLyrics" placeholder="Paste lyrics. Leave a blank line between slides."></textarea>
-    <div class="row"><button id="addSong" class="p">Add to library</button><button id="deleteSong">Delete selected song</button></div>
+    <div class="row"><button id="addSong" class="p">Add to library</button><button id="deleteSong">Delete selected song</button></div></details>
   </section>
 
-  <section aria-label="Slides">
+  <section aria-label="Slides" class="slides-panel">
+    <span class="workspace-kicker">SLIDE WORKSPACE</span>
     <h2 id="itemTitle">Slides</h2>
     <div id="slides" class="slides"></div>
     <p class="note">Select a slide to preview it. Double-click or press Enter to take it live. Changes in the editor are saved to the selected song.</p>
-    <h2 style="margin-top:12px">Edit selected slide</h2>
+    <details class="tool-drawer"><summary>Edit slides</summary>
     <textarea id="slideEditor" placeholder="Select a slide to edit its text…" aria-label="Selected slide text" style="min-height:76px"></textarea>
     <div class="row"><button id="saveSlide" class="p">Save slide text</button><button id="duplicateSlide">Duplicate slide</button><button id="addSlide">Add slide</button><button id="removeSlide">Remove slide</button></div>
-    <div class="row">
+    </details><div class="row take-controls">
       <button id="prev">Previous</button><button id="next">Next</button>
       <button id="take" class="p">Take live</button><button id="clear">Clear screen</button>
     </div>
   </section>
 
-  <section aria-label="Monitors">
+  <section aria-label="Monitors" class="monitors-panel">
+    <h2>Output monitors</h2>
     <div class="mon"><div class="bar"><span class="dot"></span>Preview</div><div class="screen small" id="pvScreen"></div></div>
     <div class="mon live"><div class="bar"><span class="dot"></span>Main output (projector)</div><div class="screen small" id="lvScreen"></div></div>
     <div class="mon"><div class="bar"><span class="dot"></span>Stage display (choir and pastor)</div>
       <div class="screen small stage" id="stScreen"></div></div>
-    <h2>Projector text size</h2><div class="row" style="align-items:center"><button id="fontDown" aria-label="Decrease projector text size">A−</button><button id="fontUp" aria-label="Increase projector text size">A+</button><span id="fontLabel" class="note">100%</span></div><h2 style="margin-top:12px">Slide appearance</h2>
+    <details class="tool-drawer"><summary>Appearance &amp; layout</summary><h2>Projector text size</h2><div class="row" style="align-items:center"><button id="fontDown" aria-label="Decrease projector text size">A−</button><button id="fontUp" aria-label="Increase projector text size">A+</button><span id="fontLabel" class="note">100%</span></div><h2 style="margin-top:12px">Slide appearance</h2>
     <div class="row" style="align-items:center"><label class="note">Text <input id="textColor" type="color" value="#f6f1e7" aria-label="Slide text color" style="width:42px;padding:2px;height:32px"></label><label class="note">Backdrop <input id="backColor" type="color" value="#16131f" aria-label="Slide background color" style="width:42px;padding:2px;height:32px"></label></div>
     <div class="row"><select id="fontFamily" aria-label="Projector font"><option value="Georgia,serif">Classic serif</option><option value="Arial,sans-serif">Clean sans</option><option value="'Times New Roman',serif">Traditional</option><option value="'Trebuchet MS',sans-serif">Modern</option></select><select id="textAlign" aria-label="Text alignment"><option value="center">Centered</option><option value="left">Left aligned</option><option value="right">Right aligned</option></select></div>
     <div class="row"><select id="transitionStyle" aria-label="Slide transition"><option value="fade">Fade transition</option><option value="none">No transition</option></select><button id="resetStyle">Reset appearance</button></div>
@@ -100,25 +104,25 @@ textarea{min-height:110px;resize:vertical}
     <div class="row"><label class="note">Vertical position <select id="textPosition" aria-label="Text vertical position"><option value="center">Center</option><option value="top">Top</option><option value="bottom">Bottom</option></select></label>
     <label class="note">Text width <select id="textWidth" aria-label="Text width"><option value="wide">Wide</option><option value="medium">Medium</option><option value="narrow">Narrow</option></select></label></div>
     <div class="row"><label class="note"><input id="textBold" type="checkbox"> Bold text</label><label class="note"><input id="textShadow" type="checkbox" checked> Text shadow</label><label class="note">Backdrop dim <input id="bgDim" type="range" min="0" max="80" step="5" value="0" style="width:100px;vertical-align:middle"></label><span id="dimLabel" class="note">0%</span></div>
-    <p class="note">Layout controls apply to preview and projector output. Background dim helps keep lyrics readable over video or photos.</p>
-    <h2 style="margin-top:12px">3D presenter</h2>
+    <div class="row"><label class="note"><input id="textItalic" type="checkbox"> Italic text</label><label class="note"><input id="textOutline" type="checkbox"> Text outline</label><label class="note">Line spacing <input id="lineHeight" type="range" min="1" max="2" step="0.1" value="1.3"></label><label class="note">Side margins <input id="margin" type="range" min="0" max="20" step="1" value="8"></label></div><p class="note">Layout controls apply to preview and projector output. Background dim helps keep lyrics readable over video or photos.</p>
+    </details><details class="tool-drawer"><summary>Presenter &amp; background</summary>
     <div class="row" style="margin-top:0">
       <button id="avBtn">Show presenter</button>
       <button id="readBtn">Read aloud</button>
       <label class="note" style="margin:0"><input type="file" id="bgFile" accept="image/*" hidden><button id="bgBtn" type="button">Set background image</button></label>
     </div>
-    <p class="note">The presenter is a flat 2D stand-in. In the full build this becomes a Three.js avatar with lip-sync.</p>
+    <p class="note">The operator preview uses a 2D guide. The projector renders the animated 3D avatar. Recorded vocals can drive its mouth animation.</p></details>
   </section>
 
-  <section aria-label="Service order" style="grid-column:1/-1">
-    <h2>Service Order · Build the church presentation queue</h2>
+  <section aria-label="Service order" class="service-panel">
+    <h2>Service order</h2>
     <p class="note">Add the selected song or Bible item to the running order. Reorder the service, then load an item when you are ready. This queue is saved on this computer.</p>
     <div class="row"><button id="queueAdd" class="p">＋ Add selected item</button><button id="queueUp">Move up</button><button id="queueDown">Move down</button><button id="queueLoad">Load selected item</button><button id="queuePrev">Previous item</button><button id="queueNext" class="p">Next item ▶</button><button id="queueStart">Start service</button><button id="queueRemove">Remove</button><button id="queueClear">Clear order</button></div>
     <ol id="serviceQueue" style="margin:10px 0 0;padding-left:24px;display:grid;gap:5px"></ol>
     <p id="queueStatus" class="note" role="status">No items queued yet.</p><p class="note">Service navigation loads items into the editor for review; it never takes a slide live automatically.</p>
   </section>
 
-  <section aria-label="AI voice assistant" style="grid-column:1/-1;border:1px solid var(--accent);background:linear-gradient(120deg,color-mix(in srgb,var(--accent) 8%,var(--panel)),var(--panel))">
+  <section aria-label="AI voice assistant" class="assistant-panel"><details><summary>Service assistant <span class="note">Voice, Bible lookup &amp; planning</span></summary>
     <h2>AI Voice Assistant · Listen first, then act</h2>
     <p class="note">Say things like “Open John 3:16” or “Find the song Amazing Grace.” Review the action before it changes your presentation. Gemini is optional; without a key, basic voice commands still work.</p>
     <div class="row" style="align-items:center">
@@ -141,53 +145,60 @@ textarea{min-height:110px;resize:vertical}
     <div class="row"><textarea id="planRequest" rows="2" placeholder="Example: Prepare a 45-minute Sunday service with opening prayer, two worship songs, Psalm 23, announcements and sermon notes." style="flex:1;min-width:240px"></textarea><button id="buildPlan" class="p">Build service plan</button></div>
     <div id="planPreview" style="display:grid;gap:6px;margin-top:8px"></div>
     <div class="row"><button id="applyPlan" class="p" disabled>Add approved plan to service order</button><button id="cancelPlan" disabled>Discard plan</button></div>
-  </section>
+  </details></section>
 </main>
 
+<script src="./projection-library.js"></script>
+<script src="./worship-data.js"></script>
 <script>
-const media=[];
+const media=(()=>{try{return Gen3DLibrary.validateMedia(JSON.parse(localStorage.getItem("gen3d.media")||"[]"))}catch{return []}})();
 const defaultSongs=[
  {title:"Morning Light (sample)",slides:["Morning light is breaking\nOver every hill","Every heart is waking\nAnd the world is still"," We lift our voice together\nIn one glad song","Morning light is breaking\nAll day long"]},
  {title:"Open Doors (sample)",slides:["Open doors and open hands\nCome as you are","Gather in from every land\nNear and far","Open doors and open hands\nCome as you are"]}
 ];
-let songs=(()=>{try{const saved=JSON.parse(localStorage.getItem("gen3d.songs")||"null");return Array.isArray(saved)&&saved.length?saved:defaultSongs}catch{return defaultSongs}})();
+let songs=(()=>{try{const saved=JSON.parse(localStorage.getItem("gen3d.songs")||"null");return Array.isArray(saved)?saved:defaultSongs}catch{return defaultSongs}})();
 const bible=[
  {title:"John 3:16 (KJV)",slides:["For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.\n— John 3:16"]},
  {title:"Psalm 23:1–3 (KJV)",slides:["The LORD is my shepherd; I shall not want.\n— Psalm 23:1","He maketh me to lie down in green pastures: he leadeth me beside the still waters.\n— Psalm 23:2","He restoreth my soul: he leadeth me in the paths of righteousness for his name’s sake.\n— Psalm 23:3"]},
  {title:"Psalm 100:1–2 (KJV)",slides:["Make a joyful noise unto the LORD, all ye lands.\n— Psalm 100:1","Serve the LORD with gladness: come before his presence with singing.\n— Psalm 100:2"]}
 ];
-let tab="songs",cur=0,pv=-1,lv=-1,liveText="",avatar=false,bg="",bgType="image";
-let libraryQuery="";let outputScale=1;
-const defaultStyle={textColor:"#f6f1e7",backColor:"#16131f",fontFamily:"Georgia,serif",textAlign:"center",transitionStyle:"fade",textPosition:"center",textWidth:"wide",textBold:false,textShadow:true,bgDim:0};
+let tab="songs",cur=0,pv=-1,lv=-1,liveText="",avatar=false,bg="",bgType="image",bgFit="cover";
+let libraryQuery="";let outputScale=(()=>{try{return Math.max(.6,Math.min(1.6,Number(localStorage.getItem("gen3d.outputScale"))||1))}catch{return 1}})();
+const defaultStyle={textColor:"#f6f1e7",backColor:"#16131f",fontFamily:"Georgia,serif",textAlign:"center",transitionStyle:"fade",textPosition:"center",textWidth:"wide",textBold:false,textItalic:false,textOutline:false,lineHeight:1.3,margin:8,textShadow:true,bgDim:0};
 let slideStyle=(()=>{try{return {...defaultStyle,...JSON.parse(localStorage.getItem("gen3d.slideStyle")||"{}")}}catch{return {...defaultStyle}}})();
 function saveStyle(){try{localStorage.setItem("gen3d.slideStyle",JSON.stringify(slideStyle))}catch(e){}}
-function applyStyle(el){el.style.color=slideStyle.textColor;el.style.backgroundColor=slideStyle.backColor;el.style.fontFamily=slideStyle.fontFamily;el.style.textAlign=slideStyle.textAlign;el.style.alignItems=slideStyle.textPosition==="top"?"flex-start":slideStyle.textPosition==="bottom"?"flex-end":"center";el.style.textShadow=slideStyle.textShadow?"0 1px 6px #000a":"none";const txt=el.querySelector(".txt");if(txt){txt.style.maxWidth=slideStyle.textWidth==="narrow"?"58%":slideStyle.textWidth==="medium"?"76%":"100%";txt.style.fontWeight=slideStyle.textBold?"700":"600";}}
+function applyStyle(el){el.style.fontStyle=slideStyle.textItalic?"italic":"normal";el.style.webkitTextStroke=slideStyle.textOutline?"1px #000":"0px";el.style.lineHeight=String(slideStyle.lineHeight||1.3);el.style.paddingLeft=el.style.paddingRight=(Math.max(0,Math.min(20,Number.isFinite(Number(slideStyle.margin))?Number(slideStyle.margin):8)))+"%";el.style.color=slideStyle.textColor;el.style.backgroundColor=slideStyle.backColor;el.style.fontFamily=slideStyle.fontFamily;el.style.textAlign=slideStyle.textAlign;el.style.alignItems=slideStyle.textPosition==="top"?"flex-start":slideStyle.textPosition==="bottom"?"flex-end":"center";el.style.textShadow=slideStyle.textShadow?"0 1px 6px #000a":"none";const txt=el.querySelector(".txt");if(txt){txt.style.maxWidth=slideStyle.textWidth==="narrow"?"58%":slideStyle.textWidth==="medium"?"76%":"100%";txt.style.fontWeight=slideStyle.textBold?"700":"600";}}
 const $=id=>document.getElementById(id);
 const items=()=>tab==="songs"?songs:tab==="bible"?bible:media;
 const robot=`<svg class="robot" viewBox="0 0 200 240" aria-hidden="true"><line x1="100" y1="20" x2="100" y2="48" stroke="#ffb36b" stroke-width="5"/><circle cx="100" cy="16" r="9" fill="#ffd9a8"/><rect x="45" y="48" width="110" height="95" rx="26" fill="#ff7a1a"/><rect x="60" y="70" width="80" height="42" rx="14" fill="#1b1326"/><circle cx="82" cy="90" r="9" fill="#7be0ff"/><circle cx="118" cy="90" r="9" fill="#7be0ff"/><ellipse class="mouth" cx="100" cy="128" rx="14" ry="4" fill="#1b1326"/><rect x="55" y="150" width="90" height="90" rx="20" fill="#e05a00"/><rect x="82" y="170" width="36" height="26" rx="6" fill="#ffd9a8"/></svg>`;
 function mk(el,cls){el.className="screen "+cls}
-function paint(el,text){applyStyle(el);el.style.backgroundImage=bg&&bgType==="image"?`url("${bg}")`:"";el.innerHTML=(bg&&bgType==="video"?`<video src="${bg}" autoplay loop muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>`:"")+robot+`<div class="txt"></div>`;el.querySelector(".txt").textContent=text;el.classList.toggle("av",avatar);applyStyle(el)}
+function paint(el,text,previewFrame){applyStyle(el);const image=previewFrame||bg,type=previewFrame?'image':bgType,fit=previewFrame?'contain':bgFit;el.style.backgroundSize=fit;el.style.backgroundImage=image&&type==='image'?`url("${image}")`:"";el.innerHTML=(image&&type==='video'?`<video src="${image}" autoplay loop muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>`:"")+robot+`<div class="txt"></div>`;el.querySelector('.txt').textContent=previewFrame?'':text;el.classList.toggle('av',avatar&&!previewFrame);applyStyle(el);if(fit==='contain')el.style.backgroundColor='#000';}
 function saveSongs(){try{localStorage.setItem("gen3d.songs",JSON.stringify(songs))}catch(e){console.warn("Could not save song library",e)}}
 function render(){
   $("tSongs").classList.toggle("on",tab==="songs");$("tBible").classList.toggle("on",tab==="bible");$("tMedia").classList.toggle("on",tab==="media");
   $("list").innerHTML="";
   items().forEach((it,i)=>{if(libraryQuery && !String(it.title||"").toLowerCase().includes(libraryQuery.toLowerCase()) && !((it.slides||[]).join(" ").toLowerCase().includes(libraryQuery.toLowerCase())))return;const b=document.createElement("button");b.textContent=it.title;b.className=i===cur?"on":"";b.onclick=()=>{cur=i;pv=-1;render()};$("list").appendChild(b)});
+  if(!$("list").children.length){const empty=document.createElement("p");empty.className="empty-state";empty.textContent=libraryQuery?"No matching content. Try another search.":"Your library is empty. Add a song or import media to get started.";$("list").appendChild(empty)}
   const it=items()[cur];$("itemTitle").textContent=it?it.title:"Slides";
   $("slideEditor").value=(it&&pv>=0&&it.slides[pv])||"";
-  $("slideEditor").disabled=!(it&&pv>=0);
-  $("liveStatus").textContent=liveText?"● LIVE":"● STANDBY";$("liveStatus").style.color=liveText?"var(--live)":"var(--mute)";
+  $("slideEditor").disabled=tab==='media'||!(it&&pv>=0);for(const id of ['saveSlide','duplicateSlide','addSlide','removeSlide'])$(id).disabled=tab==='media';
+  $("take").disabled=!(it&&pv>=0&&it.slides[pv]);
+  $("clear").disabled=!liveText&&!(liveSrc?.type==='deck'&&lv>=0);
+  $("prev").disabled=!it||!it.slides.length||pv<=0;
+  $("next").disabled=!it||!it.slides.length||pv>=it.slides.length-1;
+  $("liveStatus").textContent=(liveText||liveSrc?.type==='deck')?"● LIVE":"● STANDBY";$("liveStatus").style.color=(liveText||liveSrc?.type==='deck')?"var(--live)":"var(--mute)";
   $("slides").innerHTML="";
-  (it?it.slides:[]).forEach((s,i)=>{const d=document.createElement("div");d.className="slide"+(i===pv?" pv":"")+(i===lv&&liveSrc===it?" lv":"");d.tabIndex=0;d.textContent=s;
+  (it?it.slides:[]).forEach((s,i)=>{const d=document.createElement("div");d.className="slide"+(i===pv?" pv":"")+(i===lv&&liveSrc===it?" lv":"");d.tabIndex=0;d.setAttribute("role","button");d.setAttribute("aria-label",`Slide ${i+1}: ${s}`);d.setAttribute("aria-pressed",String(i===pv));d.textContent=s;
     d.onclick=()=>{pv=i;render()};d.ondblclick=()=>{pv=i;take()};d.onkeydown=e=>{if(e.key==="Enter"){pv=i;take()}};$("slides").appendChild(d)});
-  paint($("pvScreen"),pv>=0&&it?it.slides[pv]:"");
+  paint($("pvScreen"),pv>=0&&it?it.slides[pv]:"",it?.type==='deck'&&pv>=0?it.frames[pv]:null);
   paint($("lvScreen"),liveText);
   const nxt=liveSrc&&lv>=0?(liveSrc.slides[lv+1]||"End of item"):"";
   const t=new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
-  $("stScreen").innerHTML=`<small>${t}</small><div>${esc(liveText)||"—"}</div><small>Next: ${esc(nxt).slice(0,60)}</small>`;
+  $("stScreen").innerHTML=`<small>${t}</small><div>${esc(liveText||(liveSrc?.type==='deck'?liveSrc.slides[lv]:''))||"—"}</div><small>Next: ${esc(nxt).slice(0,60)}</small>`;
 }
 function esc(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
 let liveSrc=null;
-function take(){const it=items()[cur];if(!it||pv<0)return;liveSrc=it;lv=pv;liveText=it.slides[pv];render();
+function take(){if(tab==='media'){window.gen3dTakeMedia?.();return;}const it=items()[cur];if(!it||pv<0)return;if(liveSrc?.type==='deck'){bg="";bgFit="cover";}liveSrc=it;lv=pv;liveText=it.slides[pv];render();
   if(avatar)speak(liveText)}
 function step(d){const it=items()[cur];if(!it)return;pv=Math.max(0,Math.min(it.slides.length-1,(pv<0?-1:pv)+d));render()}
 let mouthTimer=null;
@@ -196,17 +207,17 @@ function talk(on){clearInterval(mouthTimer);const m=()=>document.querySelectorAl
   mouthTimer=setInterval(()=>m().forEach(x=>x.style.transform=`scaleY(${1+Math.random()*3})`),110)}
 function speak(text){
   let spoken=false;
-  try{if("speechSynthesis"in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text.replace(/\n/g," "));u.onstart=()=>talk(true);u.onend=()=>talk(false);u.onerror=()=>talk(false);speechSynthesis.speak(u);spoken=true}}catch(e){}
-  if(!spoken){talk(true);setTimeout(()=>talk(false),Math.min(6000,text.length*60))}}
+  try{if("speechSynthesis"in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text.replace(/\n/g," "));u.onstart=()=>talk(true);u.onend=()=>talk(false);u.onerror=()=>{talk(false);if($('presenterToolsStatus'))$('presenterToolsStatus').textContent='System speech playback failed. Check your installed voices or choose a vocal recording.';};speechSynthesis.speak(u);spoken=true}}catch(e){}
+  if(!spoken){talk(false);if($('presenterToolsStatus'))$('presenterToolsStatus').textContent='No system speech voice is available. Install a system voice or choose a vocal recording.';}}
 $("tSongs").onclick=()=>{tab="songs";cur=0;pv=-1;render()};
 $("tBible").onclick=()=>{tab="bible";cur=0;pv=-1;render()};
 $("prev").onclick=()=>step(-1);$("next").onclick=()=>step(1);$("take").onclick=take;
 $("librarySearch").addEventListener("input",e=>{libraryQuery=e.target.value;render()});
-$("saveSlide").onclick=()=>{const it=items()[cur];if(!it||pv<0)return;it.slides[pv]=$("slideEditor").value.trim();if(tab==="songs")saveSongs();if(liveSrc===it&&lv===pv)liveText=it.slides[pv];render()};
-$("duplicateSlide").onclick=()=>{const it=items()[cur];if(!it||pv<0)return;it.slides.splice(pv+1,0,it.slides[pv]);pv++;if(tab==="songs")saveSongs();render()};
+$("saveSlide").onclick=()=>{const it=items()[cur];if(!it||pv<0||tab==='media')return;it.slides[pv]=$("slideEditor").value.trim();if(tab==="songs")saveSongs();if(liveSrc===it&&lv===pv)liveText=it.slides[pv];render()};
+$("duplicateSlide").onclick=()=>{const it=items()[cur];if(!it||pv<0||tab==='media')return;it.slides.splice(pv+1,0,it.slides[pv]);pv++;if(tab==="songs")saveSongs();render()};
 $("addSlide").onclick=()=>{const it=items()[cur];if(!it||tab==="media")return;it.slides.splice(Math.max(0,pv+1),0,"New slide");pv=Math.max(0,pv+1);if(tab==="songs")saveSongs();render();$("slideEditor").focus()};
 $("removeSlide").onclick=()=>{const it=items()[cur];if(!it||pv<0||tab==="media")return;if(!confirm("Remove this slide?"))return;it.slides.splice(pv,1);if(liveSrc===it&&lv===pv){liveText="";lv=-1;liveSrc=null}pv=Math.min(pv,it.slides.length-1);if(tab==="songs")saveSongs();render()};
-$("clear").onclick=()=>{liveText="";lv=-1;liveSrc=null;try{speechSynthesis.cancel()}catch(e){}talk(false);render()};
+$("clear").onclick=()=>{if(liveSrc?.type==='deck'){bg="";bgFit="cover";}liveText="";lv=-1;liveSrc=null;try{speechSynthesis.cancel()}catch(e){}talk(false);render()};
 $("avBtn").onclick=()=>{avatar=!avatar;$("avBtn").textContent=avatar?"Hide presenter":"Show presenter";$("avBtn").classList.toggle("on",avatar);render()};
 $("readBtn").onclick=()=>{if(!avatar){avatar=true;$("avBtn").textContent="Hide presenter";$("avBtn").classList.add("on");render()}if(liveText)speak(liveText);else{const it=items()[cur];if(it&&pv>=0)speak(it.slides[pv])}};
 $("deleteSong").onclick=()=>{if(tab!=="songs"||!songs[cur]){alert("Select a song first.");return}if(!confirm(`Delete “${songs[cur].title}” from the song library?`))return;songs.splice(cur,1);saveSongs();cur=Math.max(0,Math.min(cur,songs.length-1));pv=-1;if(liveSrc&&!songs.includes(liveSrc)){liveSrc=null;lv=-1;liveText=""}render()};
@@ -221,17 +232,17 @@ setInterval(()=>{if(!document.hidden){const s=$("stScreen").querySelector("small
 render();
 
 // Local service-order queue. Items are resolved by library type + title, not stale array indexes.
-let serviceQueue=(()=>{try{const q=JSON.parse(localStorage.getItem("gen3d.serviceQueue")||"[]");return Array.isArray(q)?q.filter(x=>x&&["songs","bible"].includes(x.tab)&&typeof x.title==="string"):[]}catch{return []}})();
+let serviceQueue=(()=>{try{const q=JSON.parse(localStorage.getItem("gen3d.serviceQueue")||"[]");return Array.isArray(q)?q.filter(x=>x&&["songs","bible","media"].includes(x.tab)&&typeof x.title==="string"):[]}catch{return []}})();
 let queueSelected=0;
 function saveQueue(){try{localStorage.setItem("gen3d.serviceQueue",JSON.stringify(serviceQueue))}catch(e){console.warn("Could not save service order",e)}renderQueue()}
-function renderQueue(){const ol=$("serviceQueue");if(!ol)return;ol.innerHTML="";serviceQueue.forEach((entry,i)=>{const li=document.createElement("li");const b=document.createElement("button");b.textContent=(i===queueSelected?"▶ ":"")+entry.title+" · "+(entry.tab==="bible"?"Bible":"Song");b.style.textAlign="left";b.style.width="100%";b.classList.toggle("on",i===queueSelected);b.onclick=()=>{queueSelected=i;renderQueue()};li.appendChild(b);ol.appendChild(li)});["queueLoad","queuePrev","queueNext","queueStart","queueUp","queueDown","queueRemove"].forEach(id=>{const el=$(id);if(el)el.disabled=!serviceQueue.length});$("queuePrev").disabled=!serviceQueue.length||queueSelected<=0;$("queueNext").disabled=!serviceQueue.length||queueSelected>=serviceQueue.length-1;$("queueUp").disabled=!serviceQueue.length||queueSelected<=0;$("queueDown").disabled=!serviceQueue.length||queueSelected>=serviceQueue.length-1;$("queueStatus").textContent=serviceQueue.length?`${serviceQueue.length} item(s) in service order · selected ${Math.min(queueSelected+1,serviceQueue.length)} of ${serviceQueue.length}`:"No items queued yet."}
-function currentQueueEntry(){if(tab==="media")return null;const it=items()[cur];return it?{tab:tab,title:it.title}:null}
-$("queueAdd").onclick=()=>{const entry=currentQueueEntry();if(!entry){$("queueStatus").textContent="Select a song or Bible item first (media items cannot be queued as lyrics).";return}serviceQueue.push(entry);queueSelected=serviceQueue.length-1;saveQueue();$("queueStatus").textContent="Added “"+entry.title+"” to the service order."};
+function renderQueue(){const ol=$("serviceQueue");if(!ol)return;ol.innerHTML="";serviceQueue.forEach((entry,i)=>{const li=document.createElement("li");const b=document.createElement("button");b.textContent=(i===queueSelected?"▶ ":"")+entry.title+" · "+(entry.tab==="bible"?"Bible":entry.tab==="media"?"Media":"Song");b.style.textAlign="left";b.style.width="100%";b.classList.toggle("on",i===queueSelected);b.onclick=()=>{queueSelected=i;renderQueue()};li.appendChild(b);ol.appendChild(li)});["queueLoad","queuePrev","queueNext","queueStart","queueUp","queueDown","queueRemove"].forEach(id=>{const el=$(id);if(el)el.disabled=!serviceQueue.length});$("queuePrev").disabled=!serviceQueue.length||queueSelected<=0;$("queueNext").disabled=!serviceQueue.length||queueSelected>=serviceQueue.length-1;$("queueUp").disabled=!serviceQueue.length||queueSelected<=0;$("queueDown").disabled=!serviceQueue.length||queueSelected>=serviceQueue.length-1;$("queueStatus").textContent=serviceQueue.length?`${serviceQueue.length} item(s) in service order · selected ${Math.min(queueSelected+1,serviceQueue.length)} of ${serviceQueue.length}`:"No items queued yet."}
+function currentQueueEntry(){const it=items()[cur];return it?{tab:tab,title:it.title}:null}
+$("queueAdd").onclick=()=>{const entry=currentQueueEntry();if(!entry){$("queueStatus").textContent="Select a song, Bible or media item first.";return}serviceQueue.push(entry);queueSelected=serviceQueue.length-1;saveQueue();$("queueStatus").textContent="Added “"+entry.title+"” to the service order."};
 $("queueUp").onclick=()=>{if(queueSelected<=0||!serviceQueue.length)return;[serviceQueue[queueSelected-1],serviceQueue[queueSelected]]=[serviceQueue[queueSelected],serviceQueue[queueSelected-1]];queueSelected--;saveQueue()};
 $("queueDown").onclick=()=>{if(queueSelected>=serviceQueue.length-1)return;[serviceQueue[queueSelected+1],serviceQueue[queueSelected]]=[serviceQueue[queueSelected],serviceQueue[queueSelected+1]];queueSelected++;saveQueue()};
 $("queueRemove").onclick=()=>{if(!serviceQueue.length)return;serviceQueue.splice(queueSelected,1);queueSelected=Math.max(0,Math.min(queueSelected,serviceQueue.length-1));saveQueue()};
 $("queueClear").onclick=()=>{if(!serviceQueue.length||confirm("Clear the entire service order?")){serviceQueue=[];queueSelected=0;saveQueue()}};
-function loadQueueItem(index){if(index<0||index>=serviceQueue.length)return false;queueSelected=index;const entry=serviceQueue[index];const list=entry.tab==="bible"?bible:songs;const found=list.findIndex(it=>it.title===entry.title);if(found<0){$("queueStatus").textContent="Could not find “"+entry.title+"” in the library. It may have been renamed or deleted.";renderQueue();return false}tab=entry.tab;cur=found;pv=0;render();renderQueue();$("queueStatus").textContent=`Loaded ${index+1}/${serviceQueue.length}: “${entry.title}”. Review it, then use Take live when ready.`;return true}
+function loadQueueItem(index){if(index<0||index>=serviceQueue.length)return false;queueSelected=index;const entry=serviceQueue[index];const list=entry.tab==="bible"?bible:entry.tab==="media"?media:songs;const found=list.findIndex(it=>it.title===entry.title);if(found<0){$("queueStatus").textContent="Could not find “"+entry.title+"” in the library. It may have been renamed or deleted.";renderQueue();return false}tab=entry.tab;cur=found;pv=0;render();renderQueue();$("queueStatus").textContent=`Loaded ${index+1}/${serviceQueue.length}: “${entry.title}”. Review it, then use Take live when ready.`;return true}
 $("queueLoad").onclick=()=>{if(!serviceQueue.length){$("queueStatus").textContent="Add a song or Bible item first.";return}loadQueueItem(queueSelected)};
 $("queueStart").onclick=()=>{if(!serviceQueue.length)return;loadQueueItem(0);$("queueStatus").textContent="Service started at item 1. Use Next item to continue; live projection remains under your control."};
 $("queuePrev").onclick=()=>{if(queueSelected>0)loadQueueItem(queueSelected-1)};
@@ -351,34 +362,55 @@ if(window.studio){
   render=function(){
     _render();
     const nxt=(liveSrc&&lv>=0)?(liveSrc.slides[lv+1]||''):'';
-    if(tab==="media")document.querySelectorAll("#slides .slide").forEach(d=>{d.onclick=d.ondblclick=()=>setBg(media[cur])});
-    studio.publish({liveText,avatar,speaking:isSpeaking,next:nxt,bg,bgType,outputScale,slideStyle,
-      library:[{tab:'songs',list:songs},{tab:'bible',list:bible}].flatMap(g=>g.list.map((it,i)=>({tab:g.tab,item:i,title:it.title,slides:it.slides})))});
+    if(tab==="media"&&items()[cur]?.type!=='deck')document.querySelectorAll("#slides .slide").forEach(d=>{d.onclick=()=>{pv=0;render()};d.ondblclick=()=>window.gen3dTakeMedia()});
+    studio.publish({presenterModel:window.gen3dPresenter?.model||'',presenterAudio:window.gen3dPresenter?.audio||null,administration:window.gen3dAdmin?{members:window.gen3dAdmin.members,plans:window.gen3dAdmin.plans,reports:Gen3DAdmin.report(window.gen3dAdmin)}:null,stageSlideCount:lv>=0&&liveSrc?`${lv+1} / ${liveSrc.slides.length}`:'',stageTools:window.gen3dStage||null,stageText:liveSrc?.type==='deck'?liveSrc.slides[lv]:'',liveText,avatar,speaking:isSpeaking,next:nxt,bg,bgType,bgFit,outputScale,slideStyle:liveSrc?.type==='deck'?{...slideStyle,bgDim:0}:slideStyle,
+      library:[{tab:'songs',list:songs},{tab:'bible',list:bible},{tab:'media',list:media}].flatMap(g=>g.list.map((it,i)=>({tab:g.tab,item:i,title:it.title,slides:it.slides})))});
   };
   studio.onCommand(c=>{
-    if(c.cmd==='next')step(1);
+    if(c.cmd==='shareSong')window.gen3dReceiveSong?.(c.song);
+    else if(c.cmd==='next')step(1);
     else if(c.cmd==='prev')step(-1);
     else if(c.cmd==='take')take();
     else if(c.cmd==='clear')$('clear').click();
     else if(c.cmd==='avatar')$('avBtn').click();
+    else if(['queueNext','queuePrev','queueLoad'].includes(c.cmd))$(c.cmd).click();
     else if(c.cmd==='goto'){tab=c.tab;cur=c.item;pv=c.slide;render();take();}
   });
+  window.gen3dTakeMedia=()=>{const m=media[cur];if(!m)return;if(m.type==='audio'){toggleAudio(m);return;}if(m.type==='deck'){const index=pv>=0?pv:0;bg=m.frames[index];bgType='image';bgFit='contain';liveText='';lv=index;liveSrc=m;avatar=false;$('avBtn').textContent='Show presenter';$('avBtn').classList.remove('on');}else{bg=m.url;bgType=m.type;bgFit='cover';liveText='';lv=-1;liveSrc=null;}render();};
   function setBg(m){if(!m)return;if(m.type==='audio'){toggleAudio(m);return;}if(bg===m.url){bg="";}else{bg=m.url;bgType=m.type;}render();}
   function syncStyleControls(){for(const k of Object.keys(defaultStyle)){const el=$(k);if(el){if(el.type==="checkbox")el.checked=!!slideStyle[k];else el.value=slideStyle[k]}}$("dimLabel").textContent=(slideStyle.bgDim||0)+"%"}
-  function updateStyle(){slideStyle={textColor:$("textColor").value,backColor:$("backColor").value,fontFamily:$("fontFamily").value,textAlign:$("textAlign").value,transitionStyle:$("transitionStyle").value,textPosition:$("textPosition").value,textWidth:$("textWidth").value,textBold:$("textBold").checked,textShadow:$("textShadow").checked,bgDim:Number($("bgDim").value)||0};$("dimLabel").textContent=slideStyle.bgDim+"%";saveStyle();render()}
-  ["textColor","backColor","fontFamily","textAlign","transitionStyle","textPosition","textWidth","textBold","textShadow","bgDim"].forEach(id=>$(id).addEventListener("change",updateStyle));
+  function updateStyle(){slideStyle={textColor:$("textColor").value,backColor:$("backColor").value,fontFamily:$("fontFamily").value,textAlign:$("textAlign").value,transitionStyle:$("transitionStyle").value,textPosition:$("textPosition").value,textWidth:$("textWidth").value,textBold:$("textBold").checked,textItalic:$("textItalic").checked,textOutline:$("textOutline").checked,lineHeight:Number($("lineHeight").value),margin:Number($("margin").value),textShadow:$("textShadow").checked,bgDim:Number($("bgDim").value)||0};$("dimLabel").textContent=slideStyle.bgDim+"%";saveStyle();render()}
+  ["textColor","backColor","fontFamily","textAlign","transitionStyle","textPosition","textWidth","textBold","textShadow","bgDim","textItalic","textOutline","lineHeight","margin"].forEach(id=>$(id).addEventListener("change",updateStyle));
   $("bgDim").addEventListener("input",()=>{$("dimLabel").textContent=$("bgDim").value+"%";updateStyle()});
   $("resetStyle").onclick=()=>{slideStyle={...defaultStyle};syncStyleControls();updateStyle()};
-  syncStyleControls();
-  $("fontDown").onclick=()=>{outputScale=Math.max(.6,Math.round((outputScale-.1)*10)/10);$("fontLabel").textContent=Math.round(outputScale*100)+"%";render()};
-  $("fontUp").onclick=()=>{outputScale=Math.min(1.6,Math.round((outputScale+.1)*10)/10);$("fontLabel").textContent=Math.round(outputScale*100)+"%";render()};
+  $('bgBtn').textContent='Set image / video background';$('bgBtn').onclick=async()=>{try{const file=(await studio.pickMedia()).find(f=>['image','video'].includes(f.type));if(file){bg=file.url;bgType=file.type;render();}}catch(e){alert('Could not set background: '+e.message);}};
+  syncStyleControls();$("fontLabel").textContent=Math.round(outputScale*100)+"%";
+  $("fontDown").onclick=()=>{outputScale=Math.max(.6,Math.round((outputScale-.1)*10)/10);localStorage.setItem('gen3d.outputScale',String(outputScale));$("fontLabel").textContent=Math.round(outputScale*100)+"%";render()};
+  $("fontUp").onclick=()=>{outputScale=Math.min(1.6,Math.round((outputScale+.1)*10)/10);localStorage.setItem('gen3d.outputScale',String(outputScale));$("fontLabel").textContent=Math.round(outputScale*100)+"%";render()};
   $("tMedia").onclick=()=>{tab="media";cur=Math.min(cur,Math.max(0,media.length-1));pv=-1;render()};
   const row=document.createElement("div");row.className="row";
-  const mk=(t,f)=>{const b=document.createElement("button");b.textContent=t;b.onclick=f;row.appendChild(b)};
-  mk("Import PowerPoint",async()=>{try{const r=await studio.importPptx();if(r){songs.push({title:r.title+" (deck)",slides:r.slides});saveSongs();tab="songs";cur=songs.length-1;pv=-1;render()}}catch(e){alert("Could not read that file: "+e.message)}});
-  mk("Export project",async()=>{try{const r=await studio.exportProject({songs,slideStyle,outputScale,serviceQueue});if(r&&!r.canceled)alert("Project exported successfully.")}catch(e){alert("Export failed: "+e.message)}});
-  mk("Import project",async()=>{try{const r=await studio.importProject();if(!r)return;if(!confirm("Importing replaces the current song library and appearance settings. Continue?"))return;songs=r.songs.filter(x=>x&&typeof x.title==="string"&&Array.isArray(x.slides)).map(x=>({title:x.title,slides:x.slides.map(String)}));if(!songs.length)throw new Error("The project contains no valid songs.");saveSongs();if(r.slideStyle&&typeof r.slideStyle==="object"){slideStyle={...defaultStyle,...r.slideStyle};saveStyle();syncStyleControls()}if(Number.isFinite(r.outputScale))outputScale=Math.max(.6,Math.min(1.6,r.outputScale));if(Array.isArray(r.serviceQueue)){serviceQueue=r.serviceQueue.filter(x=>x&&["songs","bible"].includes(x.tab)&&typeof x.title==="string");queueSelected=0;saveQueue()}tab="songs";cur=0;pv=-1;render();alert("Project imported successfully.")}catch(e){alert("Import failed: "+e.message)}});
-  async function importLocalMedia(){try{const r=await studio.pickMedia();r.forEach(m=>media.push({title:m.name,slides:[m.name],url:m.url,type:m.type}));if(r.length){tab="media";cur=media.length-1;pv=-1;render();$('mediaAssistantStatus').textContent=`Imported ${r.length} media file(s). Select audio to play or image/video to use as a background.`}}catch(e){$('mediaAssistantStatus').textContent='Media import failed: '+e.message}}
+  const mk=(t,f)=>{const b=document.createElement("button");b.textContent=t;b.onclick=f;row.appendChild(b);return b};
+  mk("Import PowerPoint text",async()=>{try{const r=await studio.importPptx();if(r){songs.push({title:r.title+" (deck)",slides:r.slides});saveSongs();tab="songs";cur=songs.length-1;pv=-1;render()}}catch(e){alert("Could not read that file: "+e.message)}});
+  const visualButton=mk("Import PowerPoint visuals",async()=>{visualButton.disabled=true;try{const deck=await studio.importVisualPptx();if(!deck)return;const next=Gen3DLibrary.validateMedia([...media,deck]);localStorage.setItem('gen3d.media',JSON.stringify(next));media.splice(0,media.length,...next);tab='media';cur=media.length-1;pv=0;render();}catch(e){alert('Visual PowerPoint import failed: '+e.message);}finally{visualButton.disabled=false;}});
+  mk("Export project",async()=>{try{const r=await studio.exportProject({songs,media,stageSettings:window.gen3dStage?.settings||Gen3DLibrary.stageSettings(),biblePassages:bible,themes:JSON.parse(localStorage.getItem('gen3d.themes')||'[]'),administration:window.gen3dAdmin||Gen3DAdmin.empty(),slideStyle,outputScale,serviceQueue});if(r&&!r.canceled)alert("Project exported successfully.")}catch(e){alert("Export failed: "+e.message)}});
+  mk("Import project",async()=>{try{
+    const r=await studio.importProject();if(!r)return;
+    const nextStage=Gen3DLibrary.stageSettings(r.stageSettings||window.gen3dStage?.settings||{});
+    const nextAdmin=r.administration===undefined?(window.gen3dAdmin||Gen3DAdmin.empty()):Gen3DAdmin.validate(r.administration);
+    const nextSongs=Gen3DLibrary.validateSongs(r.songs);
+    const nextMedia=r.media===undefined?media:Gen3DLibrary.validateMedia(r.media);
+    const nextBible=r.biblePassages===undefined?bible:Gen3DLibrary.validateSongs(r.biblePassages);
+    const nextStyle=r.slideStyle&&typeof r.slideStyle==='object'?{...defaultStyle,...r.slideStyle}:{...slideStyle};
+    const nextQueue=Array.isArray(r.serviceQueue)?r.serviceQueue.filter(x=>x&&['songs','bible','media'].includes(x.tab)&&typeof x.title==='string'):serviceQueue;
+    const nextThemes=Gen3DLibrary.validateThemes(r.themes===undefined?JSON.parse(localStorage.getItem('gen3d.themes')||'[]'):r.themes);
+    if(!Array.isArray(nextThemes)||nextThemes.length>200||nextThemes.some(t=>!t||typeof t.name!=='string'||t.name.length>80||!t.style||typeof t.style!=='object'))throw Error('Invalid saved themes in project.');
+    if(!confirm('Importing replaces songs, saved passages, themes, appearance and service order. Continue?'))return;
+    Gen3DLibrary.commitSettings(localStorage,{'gen3d.stageSettings':JSON.stringify(nextStage),'gen3d.media':JSON.stringify(nextMedia),'gen3d.ministry':JSON.stringify(nextAdmin),'gen3d.songs':JSON.stringify(nextSongs),'gen3d.biblePassages':JSON.stringify(nextBible),'gen3d.themes':JSON.stringify(nextThemes),'gen3d.slideStyle':JSON.stringify(nextStyle),'gen3d.serviceQueue':JSON.stringify(nextQueue),'gen3d.outputScale':String(Number.isFinite(r.outputScale)?Math.max(.6,Math.min(1.6,r.outputScale)):outputScale)});
+    songs=nextSongs;media.splice(0,media.length,...nextMedia);bible.splice(0,bible.length,...nextBible);slideStyle=nextStyle;serviceQueue=nextQueue;queueSelected=0;
+    if(Number.isFinite(r.outputScale))outputScale=Math.max(.6,Math.min(1.6,r.outputScale));
+    window.dispatchEvent(new CustomEvent('gen3d:stage-imported',{detail:nextStage}));window.dispatchEvent(new CustomEvent('gen3d:administration-imported',{detail:nextAdmin}));syncStyleControls();$('fontLabel').textContent=Math.round(outputScale*100)+'%';renderQueue();window.dispatchEvent(new CustomEvent('gen3d:themes-imported',{detail:nextThemes}));tab='songs';cur=0;pv=-1;render();alert('Project imported successfully.');
+  }catch(e){alert('Import failed: '+e.message)}});
+  async function importLocalMedia(){try{const r=await studio.pickMedia();r.forEach(m=>media.push({title:m.name,slides:[m.name],url:m.url,type:m.type}));localStorage.setItem('gen3d.media',JSON.stringify(media));if(r.length){tab="media";cur=media.length-1;pv=-1;render();$('mediaAssistantStatus').textContent=`Imported ${r.length} media file(s). Select audio to play or image/video to use as a background.`}}catch(e){$('mediaAssistantStatus').textContent='Media import failed: '+e.message}}
   mk("Add images, video or audio",importLocalMedia);
   mk("Stop audio",()=>{if(audio){audio.pause();$('mediaAssistantStatus').textContent='Audio playback stopped.'}});
   $('importMediaAssistant').onclick=importLocalMedia;
@@ -389,11 +421,21 @@ if(window.studio){
   $("list").after(row);
   studio.info().then(i=>{
     const b=document.createElement('span');
-    b.textContent='Phone remote: '+i.ip+':'+i.port+'  PIN '+i.pin;
+    b.textContent='Phone browser: http://'+i.ip+':'+i.port+'  PIN '+i.pin;
     document.querySelector('header .sp').after(b);
   });
   render();
 }
 </script>
+<script src="./projection-workflows.js"></script>
+<script src="./holyrics-format.js"></script><script src="./holyrics-tools.js"></script>
+<script src="./stage-layout.js"></script><script src="./stage-display-tools.js"></script>
+<script src="./bibles/kjv.js"></script>
+<script src="./offline-bible.js"></script>
+<script src="./worship-planning.js"></script>
+<script src="./presentation-tools.js"></script>
+<script src="./presenter-tools.js"></script>
+<script src="./cloud-tools.js"></script>
+<script src="./dist/export.js"></script><script src="./export-tools.js"></script>
 </body>
 </html>

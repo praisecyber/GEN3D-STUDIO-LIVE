@@ -1,0 +1,97 @@
+{
+  "tested_at_utc": "2026-10-26T15:38:30.475333+00:00",
+  "desktop_version": "0.10.1",
+  "host": "Linux cloud workspace",
+  "suites": [
+    {
+      "suite": "test",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "scratch/current-acceptance/test.log"
+    },
+    {
+      "suite": "test:ui",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "scratch/current-acceptance/test-ui-retry.log",
+      "first_attempt": {
+        "status": "failed",
+        "log": "scratch/current-acceptance/test-ui.log"
+      }
+    },
+    {
+      "suite": "test:native",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "scratch/current-acceptance/test-native-retry.log",
+      "first_attempt": {
+        "status": "failed",
+        "log": "scratch/current-acceptance/test-native.log"
+      }
+    },
+    {
+      "suite": "test:stages",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "scratch/current-acceptance/test-stages-retry.log",
+      "first_attempt": {
+        "status": "failed",
+        "log": "scratch/current-acceptance/test-stages.log"
+      }
+    },
+    {
+      "suite": "test:powerpoint",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "scratch/current-acceptance/test-powerpoint-retry.log",
+      "first_attempt": {
+        "status": "failed",
+        "log": "scratch/current-acceptance/test-powerpoint.log"
+      }
+    },
+    {
+      "suite": "test:ndi",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "scratch/current-acceptance/test-ndi-retry.log",
+      "first_attempt": {
+        "status": "failed",
+        "log": "scratch/current-acceptance/test-ndi.log"
+      }
+    },
+    {
+      "suite": "test:phone",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "scratch/current-acceptance/test-phone.log"
+    },
+    {
+      "suite": "test:holyrics",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "scratch/current-acceptance/test-holyrics-retry.log",
+      "first_attempt": {
+        "status": "failed",
+        "log": "scratch/current-acceptance/test-holyrics.log"
+      }
+    },
+    {
+      "suite": "test:network",
+      "status": "passed",
+      "exit_code": 0,
+      "log": "scratch/current-acceptance/test-network.log"
+    }
+  ],
+  "physical_acceptance": {
+    "status": "blocked",
+    "reason": "No Windows machine, connected Android device, USB capture devices or KVM hardware acceleration available. No live Holyrics endpoint or public streaming account configured."
+  },
+  "cloud_result": "passed",
+  "retry_note": "Started the missing Xvfb display; UI test now awaits asynchronous Bible favorite initialization before persistence assertion. Production source and installers unchanged.",
+  "completed_at_utc": "2026-10-26T15:40:25.055293+00:00",
+  "verified_artifacts": [
+    "desktop/release/GEN3D Studio Live Setup 0.10.1.exe",
+    "mobile/android/build/GEN3D-Remote-release.apk",
+    "mobile/android/build/GEN3D-Remote-debug.apk"
+  ]
+}

@@ -22,6 +22,8 @@ async function port(){const server=net.createServer();await new Promise(resolve=
   const refused=await port();destinations.push({label:'Unavailable destination',server:`rtmp://127.0.0.1:${refused}/live/hidden-test-key`,key:''});await delay(300);
   const session=await engine.start({destinations,bitrate:3000},ffmpeg);const input=await fs.readFile(fixture);
   for(let i=0;i<input.length;i+=32768){await engine.append(session.id,input.subarray(i,i+32768));await delay(12);}
+  // Keep the live input open until FFmpeg reports progress; fast fixture ingestion must not race Stop.
+  const progressDeadline=Date.now()+5000;while(Date.now()<progressDeadline&&!statuses.some(s=>s.destinations.some(d=>d.status==='sending')))await delay(50);
   const result=await engine.stop(session.id);
   assert.equal(result.destinations.filter(d=>d.status==='failed').length,1);assert.equal(engine.active,null);
   assert.equal(JSON.stringify(statuses).includes('hidden-test-key'),false);

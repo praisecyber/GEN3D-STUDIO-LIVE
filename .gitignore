@@ -7,3 +7,11 @@ desktop/renderer/dist/
 *.part
 .DS_Store
 Thumbs.db
+
+desktop/release/
+mobile/android/build/
+
+.cache/
+desktop/vendor/
+
+mobile/android/tests/build/

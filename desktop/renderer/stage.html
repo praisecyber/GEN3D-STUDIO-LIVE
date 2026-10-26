@@ -1,14 +1,19 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><title>Stage display</title>
 <style>
 html,body{margin:0;height:100%;background:#000;color:#fff;font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden;cursor:none}
-body{display:flex;flex-direction:column;padding:3vh 4vw;gap:2vh}
+body{box-sizing:border-box;display:flex;flex-direction:column;padding:3vh 4vw;gap:2vh}
 #c{font-size:5vh;color:#ffb36b}
 #n{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;font-size:7vh;line-height:1.25;white-space:pre-line}
 #x{font-size:3.6vh;color:#9a93a8;white-space:pre-line}
+#stageTimer{font:600 6vh monospace;color:#8ee7b8}#stageMessage{max-height:22vh;overflow:auto;flex-shrink:0;font-size:4vh;color:#ffcc80;white-space:pre-wrap;overflow-wrap:anywhere}#stageTimer.expired{color:#ff8296}
 </style></head><body>
-<div id="c"></div><div id="n"></div><div id="x"></div>
-<script>
+<div id="c"></div><div id="stageTimer" role="timer"></div><div id="stageMessage" role="status"></div><div id="n"></div><div id="x"></div><div id="slideCount"></div>
+<script src="./stage-layout.js"></script><script src="./projection-library.js"></script><script>
 const clock=()=>document.getElementById('c').textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 clock();setInterval(clock,1000);
-studio.onState(s=>{document.getElementById('n').textContent=s.liveText||'';document.getElementById('x').textContent=s.next?'Next: '+s.next:''});
+let ownLayout=null;const widgetIds={clock:'c',current:'n',next:'x',timer:'stageTimer',message:'stageMessage',count:'slideCount'};
+function applyLayout(){if(!ownLayout)return;document.body.style.color=ownLayout.textColor;document.body.style.backgroundColor=ownLayout.backColor;document.body.style.textTransform=ownLayout.uppercase?'uppercase':'none';for(const [key,id] of Object.entries(widgetIds)){const item=ownLayout.widgets[key],el=document.getElementById(id);el.hidden=!item.visible;Object.assign(el.style,{position:'absolute',left:item.left+'vw',top:item.top+'vh',width:item.width+'vw',height:item.height+'vh',maxHeight:item.height+'vh',fontSize:item.fontSize+'vh',overflow:'hidden',boxSizing:'border-box',color:'inherit'});}}
+studio.onStageLayout?.(layout=>{ownLayout=layout?Gen3DStageLayout.normalize(layout):null;if(!ownLayout)for(const id of Object.values(widgetIds))document.getElementById(id).removeAttribute('style');applyLayout();});
+let cues=null;function updateCues(){const timer=document.getElementById('stageTimer');timer.textContent=Gen3DLibrary.formatCountdown(cues?.timer);timer.classList.toggle('expired',!!cues?.timer&&timer.textContent==='00:00');document.getElementById('stageMessage').textContent=cues?.message||'';}setInterval(updateCues,250);
+studio.onState(s=>{cues=s.stageTools;updateCues();const settings=cues?.settings||{};document.body.style.textTransform=settings.uppercase?'uppercase':'none';document.body.style.color=settings.textColor||'#fff';document.body.style.backgroundColor=settings.backColor||'#000';document.getElementById('c').hidden=settings.showClock===false;document.getElementById('x').hidden=settings.showNext===false;document.getElementById('slideCount').textContent=!ownLayout&&settings.showCount===false?'':s.stageSlideCount||'';document.getElementById('n').textContent=s.stageText||s.liveText||'';document.getElementById('x').textContent=s.next?'Next: '+s.next:'';applyLayout();});
 </script></body></html>

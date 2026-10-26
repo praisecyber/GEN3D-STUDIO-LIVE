@@ -1,3 +1,4 @@
+import {sourceWeight} from './switcher.mjs';
 export const clampGain = value => Number.isFinite(Number(value)) ? Math.max(0, Math.min(1, Number(value))) : 0;
 export function levelDb(samples) {
   let peak=0; for (const value of samples) peak=Math.max(peak,Math.abs(value));
@@ -17,11 +18,20 @@ export class AudioMixer {
     this.masterGain.connect(this.masterMeter);this.masterMeter.connect(this.destination);
     // No connection to context.destination: the operator never monitors microphones on speakers.
   }
-  snapshot(){return {status:this.context.state,master:{...this.master},channels:[...this.channels.values()].map(({id,name,kind,volume,muted,playing})=>({id,name,kind,volume,muted,playing}))};}
+  snapshot(){return {status:this.context.state,master:{...this.master},channels:[...this.channels.values()].map(({id,name,kind,volume,muted,playing,sourceId,followProgram})=>({id,name,kind,volume,muted,playing,sourceId,followProgram}))};}
   emit(){if(!this.disposed)this.onChange(this.snapshot());}
   async enable(){if(this.disposed)throw Error('Mixer closed.');await this.context.resume();this.emit();}
   setMaster(volume,muted){this.master={volume:clampGain(volume),muted:!!muted};setGain(this.masterGain,this.master.volume,this.master.muted,this.context);this.emit();}
-  setChannel(id,volume,muted){const c=this.channels.get(id);if(!c)return;c.volume=clampGain(volume);c.muted=!!muted;setGain(c.gain,c.volume,c.muted,this.context);this.emit();}
+  setChannel(id,volume,muted){const c=this.channels.get(id);if(!c)return;c.volume=clampGain(volume);c.muted=!!muted;this.applyChannel(c);this.emit();}
+  applyChannel(c){const weight=c.followProgram&&c.sourceId&&this.programState?sourceWeight(this.programState,c.sourceId,this.programTime):1;setGain(c.gain,c.volume*weight,c.muted,this.context);}
+  followProgram(state,now){this.programState=state;this.programTime=now;for(const c of this.channels.values())if(c.followProgram)this.applyChannel(c);}
+  setFollowProgram(id,enabled){const c=this.channels.get(id);if(!c?.sourceId)return;c.followProgram=!!enabled;this.applyChannel(c);this.emit();}
+  attachInput(sourceId,name,input){
+    const stream=input instanceof MediaStream?new MediaStream(input.getAudioTracks().map(t=>t.clone())):null;
+    if(stream&&!stream.getAudioTracks().length)return null;
+    const source=stream?this.context.createMediaStreamSource(stream):this.context.createMediaElementSource(input);
+    try{return this.attach(name,'input',source,{sourceId,stream,followProgram:false});}catch(error){source.disconnect();stream?.getTracks().forEach(t=>t.stop());throw error;}
+  }
   attach(name,kind,source,extra={}){
     if(this.disposed||this.channels.size>=8)throw Error('Eight audio channels are already occupied or the mixer is closed.');
     const id=crypto.randomUUID(),gain=this.context.createGain(),analyser=this.context.createAnalyser();
@@ -55,6 +65,7 @@ export class AudioMixer {
     if(c.media){c.media.onended=null;c.media.onerror=null;c.media.pause();c.media.removeAttribute('src');c.media.load();}
     c.source.disconnect();c.gain.disconnect();c.analyser.disconnect();this.channels.delete(id);this.emit();
   }
+  isolatedAudio(sourceId){const channel=[...this.channels.values()].find(c=>c.sourceId===sourceId);if(!channel)return {stream:new MediaStream(),release(){}};const destination=this.context.createMediaStreamDestination();channel.source.connect(destination);return {stream:destination.stream,release:()=>{try{channel.source.disconnect(destination);}catch{}destination.stream.getTracks().forEach(t=>t.stop());}};}
   levels(){const sample=new Float32Array(512);const read=node=>{node.getFloatTimeDomainData(sample);return levelDb(sample);};return {master:read(this.masterMeter),channels:Object.fromEntries([...this.channels.values()].map(c=>[c.id,read(c.analyser)]))};}
   dispose(){if(this.disposed)return;this.disposed=true;[...this.channels.keys()].forEach(id=>this.remove(id));this.destination.stream.getTracks().forEach(t=>t.stop());this.context.onstatechange=null;this.masterGain.disconnect();this.masterMeter.disconnect();this.context.close().catch(()=>{});}
 }

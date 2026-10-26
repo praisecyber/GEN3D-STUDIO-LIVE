@@ -1,22 +1,91 @@
 {
   "name": "gen3d-studio-live",
-  "version": "0.7.0",
+  "version": "0.10.1",
   "main": "main.js",
   "scripts": {
-    "build": "esbuild src/App.jsx --bundle --minify --outfile=renderer/dist/app.js --loader:.jsx=jsx",
+    "build": "esbuild src/App.jsx --bundle --minify --outfile=renderer/dist/app.js --loader:.jsx=jsx && esbuild renderer/avatar3d.js --bundle --minify --format=esm --outfile=renderer/dist/avatar.js && esbuild renderer/export-slides.js --bundle --minify --outfile=renderer/dist/export.js",
     "start": "npm run build && electron .",
-    "test": "node --test tests/*.test.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "package:win": "python3 ../scripts/fetch-koffi-windows.py && python3 ../scripts/fetch-ffmpeg-windows.py && npm run build && electron-builder --win nsis --x64",
+    "test:ui": "node tests/projection-ui.integration.cjs",
+    "test:native": "node tests/native-features.integration.cjs && node tests/presenter.integration.cjs",
+    "test:network": "node tests/network-input.integration.cjs && node tests/network-transports.integration.cjs && node tests/streaming.integration.cjs",
+    "test:phone": "node tests/phone-sharing.integration.cjs",
+    "test:stages": "node tests/stage-displays.integration.cjs",
+    "test:export": "node tests/video-export.integration.cjs",
+    "test:powerpoint": "node tests/visual-decks.integration.cjs",
+    "test:ndi": "node tests/ndi.integration.cjs",
+    "test:holyrics": "node tests/holyrics.integration.cjs"
   },
   "dependencies": {
-    "ws": "^8.18.0",
     "jszip": "^3.10.1",
-    "three": "^0.160.0",
+    "koffi": "3.3.3",
+    "obs-websocket-js": "5.0.6",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "three": "^0.160.0",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "electron": "^33.0.0",
-    "esbuild": "^0.25.0"
+    "electron-builder": "26.15.3",
+    "esbuild": "^0.25.0",
+    "playwright": "1.62.1"
   },
-  "description": "GEN3D Studio Live v17 \u2014 Picture-in-Picture, Chroma/Luma Keying and Program Composition"
+  "description": "Integrated projection, live production, network inputs, ISO recording and streaming",
+  "build": {
+    "appId": "com.gen3d.studiolive",
+    "productName": "GEN3D Studio Live",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "*.js",
+      "renderer/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "script": "build/installer.nsi",
+      "installerLanguages": [
+        "en_US"
+      ]
+    },
+    "extraResources": [
+      {
+        "from": "vendor/ffmpeg/windows",
+        "to": "ffmpeg"
+      },
+      {
+        "from": "native",
+        "to": "native"
+      },
+      {
+        "from": "../docs/NDI-PUBLIC-HEADER-LICENSE.txt",
+        "to": "licenses/NDI-PUBLIC-HEADER-LICENSE.txt"
+      }
+    ],
+    "asarUnpack": [
+      "node_modules/@koromix/koffi-win32-x64/**/*"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/praisecyber/GEN3D-STUDIO-LIVE.git"
+  },
+  "author": "praisecyber"
 }

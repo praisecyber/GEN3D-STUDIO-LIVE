@@ -1,0 +1,3 @@
+package com.gen3d.remote.tests;
+import android.app.*;import android.os.*;import android.content.*;
+public class WebViewProbeTest extends Instrumentation{public void onCreate(Bundle b){super.onCreate(b);start();}public void onStart(){Bundle b=new Bundle();try{ProbeActivity a=(ProbeActivity)startActivitySync(new Intent().setClassName("com.gen3d.remote.tests","com.gen3d.remote.tests.ProbeActivity").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));for(int i=0;i<120&&"loading".equals(a.result);i++)Thread.sleep(500);b.putString("stock_webview",a.result);finish("2".equals(a.result)?Activity.RESULT_OK:Activity.RESULT_CANCELED,b);}catch(Throwable e){b.putString("failure",e.toString());finish(Activity.RESULT_CANCELED,b);}}}

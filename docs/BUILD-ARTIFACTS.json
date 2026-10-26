@@ -1,0 +1,28 @@
+{
+  "version": "0.10.1",
+  "status": "development; physical acceptance and real vendor deployments remain outstanding",
+  "windows_publisher_signed": false,
+  "android_signing": "Release RSA-4096 and separate Android Debug certificates; V2/V3 verified",
+  "android_release_certificate_sha256": "6e61407051278f830cdf9516890d7eeaafe6754a004ea51e90352d4f08a7a9e5",
+  "artifacts": [
+    {
+      "path": "desktop/release/GEN3D Studio Live Setup 0.10.1.exe",
+      "bytes": 179637247,
+      "sha256": "9b5f0474b5c8be216d2768983e96e546de67253ffb038e4f5e1f293fe050f1b5"
+    },
+    {
+      "path": "mobile/android/build/GEN3D-Remote-release.apk",
+      "bytes": 1418221,
+      "sha256": "3edf71cbd36261912d389393ecb8e6438e23114e1aa427d4a051bd463a44f6cd"
+    },
+    {
+      "path": "mobile/android/build/GEN3D-Remote-debug.apk",
+      "bytes": 1414125,
+      "sha256": "f4e22b03ebf5392a1242777ca93db829bb0391c5f9ea87d9d34b92030329f77f"
+    }
+  ],
+  "component_versions": {
+    "desktop": "0.10.1",
+    "android": "0.10.0"
+  }
+}
