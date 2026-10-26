@@ -12,7 +12,11 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_LANGUAGE "English"
 Section "Install"
   SetOutPath "$INSTDIR"
+!ifdef NSIS_WIN32_MAKENSIS
+  File /r "${PROJECT_DIR}\release\win-unpacked\*"
+!else
   File /r "${PROJECT_DIR}/release/win-unpacked/*"
+!endif
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   CreateShortcut "$DESKTOP\GEN3D Studio Live.lnk" "$INSTDIR\GEN3D Studio Live.exe"
   CreateShortcut "$SMPROGRAMS\GEN3D Studio Live.lnk" "$INSTDIR\GEN3D Studio Live.exe"
