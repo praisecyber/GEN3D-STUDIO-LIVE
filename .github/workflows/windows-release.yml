@@ -37,7 +37,7 @@ jobs:
         run: npm test
       - name: Build Windows installer
         working-directory: desktop
-        run: npm run package:win
+        run: npm run package:win -- --publish never
       - name: Prepare downloads and checksums
         shell: pwsh
         run: |
