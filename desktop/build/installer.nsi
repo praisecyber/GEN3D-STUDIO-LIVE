@@ -2,7 +2,8 @@ Unicode true
 RequestExecutionLevel user
 Name "GEN3D Studio Live"
 InstallDir "$LOCALAPPDATA\Programs\GEN3DStudioLive"
-SetCompressor /SOLID lzma
+; Keep compilation below electron-builder's four-minute child-process timeout.
+SetCompressor /SOLID zlib
 !include "MUI2.nsh"
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_INSTFILES
