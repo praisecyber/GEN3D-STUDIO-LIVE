@@ -1,0 +1,72 @@
+name: Windows installer release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/windows-release.yml]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: windows-installer-release
+  cancel-in-progress: false
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 30
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen dependencies
+        working-directory: desktop
+        run: npm ci
+      - name: Run unit tests
+        working-directory: desktop
+        run: npm test
+      - name: Build Windows installer
+        working-directory: desktop
+        run: npm run package:win
+      - name: Prepare downloads and checksums
+        shell: pwsh
+        run: |
+          $version = (Get-Content desktop/package.json | ConvertFrom-Json).version
+          New-Item -ItemType Directory -Force downloads | Out-Null
+          Copy-Item "desktop/release/GEN3D Studio Live Setup $version.exe" "downloads/GEN3D-Studio-Live-$version-Windows-x64.exe"
+          'Run the EXE to install. This is an unsigned development preview. Physical device acceptance remains outstanding. NDI needs a separate NDI 6 runtime; static PowerPoint import needs Microsoft PowerPoint.' | Set-Content downloads/INSTALL.txt
+          Compress-Archive -Path "downloads/GEN3D-Studio-Live-$version-Windows-x64.exe", downloads/INSTALL.txt -DestinationPath "downloads/GEN3D-Studio-Live-$version-Windows-x64.zip"
+          Get-ChildItem downloads -File | Where-Object { $_.Extension -in '.exe', '.zip' } | ForEach-Object { $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(); "$hash  $($_.Name)" } | Set-Content downloads/SHA256SUMS.txt
+          "GEN3D_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Windows-installer
+          path: downloads/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Attach downloads and publish development release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: pwsh
+        run: |
+          $tag = "v$env:GEN3D_VERSION"
+          gh release view $tag --json isDraft | Out-Null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --target $env:GITHUB_SHA --draft --prerelease --title "GEN3D Studio Live $env:GEN3D_VERSION - Development Preview" --notes 'Unsigned Windows development build. Physical Windows/Android acceptance and full vendor compatibility remain outstanding. See docs/RELEASE-READINESS.md. This release was built on GitHub Windows runners.'
+            if ($LASTEXITCODE -ne 0) { throw 'Release creation failed' }
+          }
+          gh release upload $tag "downloads/GEN3D-Studio-Live-$env:GEN3D_VERSION-Windows-x64.exe" "downloads/GEN3D-Studio-Live-$env:GEN3D_VERSION-Windows-x64.zip" downloads/SHA256SUMS.txt --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Release asset upload failed' }
+          gh release edit $tag --draft=false --prerelease
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }
