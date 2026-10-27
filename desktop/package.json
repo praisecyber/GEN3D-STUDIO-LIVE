@@ -1,6 +1,6 @@
 {
   "name": "gen3d-studio-live",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "main": "main.js",
   "scripts": {
     "build": "esbuild src/App.jsx --bundle --minify --outfile=renderer/dist/app.js --loader:.jsx=jsx && esbuild renderer/avatar3d.js --bundle --minify --format=esm --outfile=renderer/dist/avatar.js && esbuild renderer/export-slides.js --bundle --minify --outfile=renderer/dist/export.js",
@@ -15,7 +15,8 @@
     "test:export": "node tests/video-export.integration.cjs",
     "test:powerpoint": "node tests/visual-decks.integration.cjs",
     "test:ndi": "node tests/ndi.integration.cjs",
-    "test:holyrics": "node tests/holyrics.integration.cjs"
+    "test:holyrics": "node tests/holyrics.integration.cjs",
+    "test:hunyuan": "node tests/hunyuan.integration.cjs"
   },
   "dependencies": {
     "jszip": "^3.10.1",
@@ -77,6 +78,14 @@
       {
         "from": "../docs/NDI-PUBLIC-HEADER-LICENSE.txt",
         "to": "licenses/NDI-PUBLIC-HEADER-LICENSE.txt"
+      },
+      {
+        "from": "../docs/HUNYUAN3D-LICENSE.txt",
+        "to": "licenses/HUNYUAN3D-LICENSE.txt"
+      },
+      {
+        "from": "../docs/HUNYUAN3D-NOTICE.txt",
+        "to": "licenses/HUNYUAN3D-NOTICE.txt"
       }
     ],
     "asarUnpack": [

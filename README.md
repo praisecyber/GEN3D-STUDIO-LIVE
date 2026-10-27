@@ -1,6 +1,6 @@
 # GEN3D Studio Live 0.8 — development preview
 
-Download the Windows development installer from the [v0.10.1 release](https://github.com/praisecyber/GEN3D-STUDIO-LIVE/releases/tag/v0.10.1). This unsigned preview still needs physical Windows/Android acceptance; see [release readiness](docs/RELEASE-READINESS.md).
+Download the Windows development installer from the [v0.11.0 development release](https://github.com/praisecyber/GEN3D-STUDIO-LIVE/releases/tag/v0.11.0). This unsigned preview still needs physical Windows/Android acceptance; see [release readiness](docs/RELEASE-READINESS.md).
 
 
 An Electron/React desktop application combining church projection, live production, recording, streaming and a phone remote. Its implementation is independent of Holyrics, EasyWorship, ProPresenter, OBS and vMix. Complete compatibility with those applications is not claimed.
@@ -78,7 +78,7 @@ cd desktop
 npm run package:win
 ```
 
-This verifies/downloads the pinned Windows FFmpeg archive, builds the frontend and produces `desktop/release/GEN3D Studio Live Setup 0.10.1.exe`. The per-user installer/uninstaller uses NSIS and preserves application data. The installer is a development artifact without a publisher signing certificate. Windows installation and hardware acceptance remain outstanding.
+This verifies/downloads the pinned Windows FFmpeg archive, builds the frontend and produces `desktop/release/GEN3D Studio Live Setup 0.11.0.exe`. The per-user installer/uninstaller uses NSIS and preserves application data. The installer is a development artifact without a publisher signing certificate. Windows installation and hardware acceptance remain outstanding.
 
 Third-party binary/source notices are in `desktop/renderer/bibles/` and the prepared `desktop/vendor/ffmpeg/windows/` directory. Cached SDKs/vendor binaries and build artifacts are ignored by Git.
 
@@ -109,3 +109,7 @@ Version 0.10 adds **Import PowerPoint visuals** beside text import. Visual decks
 **Holyrics migration:** expand Import from Holyrics in Projection Studio. Read from its API Server using a read token or choose GetSongs JSON. Review before adding. Basic text, repeated slide order, credits and source notes are retained; local matching titles are kept. Unsupported content is reported. See [Holyrics import protocol and limits](docs/HOLYRICS-IMPORT.md).
 
 Run `npm run test:holyrics` for the local protocol/native UI check. Run `GEN3D_NDI_LIBRARY=/path/to/installed/runtime DISPLAY=:99 npm run test:ndi` for real loopback NDI integration on Linux; Windows uses the same variable with its DLL path. Neither check establishes compatibility with every physical sender or vendor deployment.
+
+## Online 3D Studio
+
+Generate untextured GLB meshes through official Hunyuan3D-2mini on your Kaggle GPU. Text prompts first create an SDXL-Turbo reference image. Download the supplied [Kaggle notebook](cloud/hunyuan3d/GEN3D-Kaggle.ipynb) and follow the [setup guide](docs/HUNYUAN3D-ONLINE.md). GPU inference on Kaggle remains unverified; automated integration checks use synthetic fixtures. Kaggle quotas and temporary sessions apply.

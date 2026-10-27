@@ -1,0 +1,31 @@
+(()=>{
+ const panel=document.createElement('details');panel.className='tool-drawer';panel.innerHTML=`<summary>Online 3D Studio · Hunyuan3D</summary>
+ <p class="note">Powered by Tencent Hunyuan. Generate a 3D mesh from an image, or from text through a generated reference image. Runs on your connected Kaggle GPU. The free session must stay running; GPU availability and quotas depend on Kaggle. Models are untextured and are not automatically rigged for singing or speech.</p>
+ <label for="hunyuanUrl">Kaggle connection URL</label><input id="hunyuanUrl" type="url" placeholder="https://your-session.trycloudflare.com" autocomplete="off">
+ <label for="hunyuanToken">GPU access token from your Kaggle Secret</label><input id="hunyuanToken" type="password" autocomplete="off"><button id="connectHunyuan">Connect GPU</button>
+ <label for="hunyuanMode">Create from</label><select id="hunyuanMode"><option value="text">Text description</option><option value="image">Reference image</option></select>
+ <label for="hunyuanPrompt">Describe one object</label><textarea id="hunyuanPrompt" maxlength="1000" placeholder="An orange friendly robot, full body, isolated on a plain background"></textarea>
+ <button id="hunyuanImage">Choose reference PNG / JPEG</button><p id="hunyuanImageName" class="note">No reference chosen. Maximum 10 MB.</p>
+ <label for="hunyuanSteps">Shape steps (10–50)</label><input id="hunyuanSteps" type="number" min="10" max="50" value="30">
+ <label for="hunyuanSeed">Seed</label><input id="hunyuanSeed" type="number" min="0" max="2147483647" value="0">
+ <div class="row"><button id="generateHunyuan" disabled>Generate 3D model</button><button id="cancelHunyuan" disabled>Cancel</button></div>
+ <p id="hunyuanStatus" class="note" role="status">Start the supplied GEN3D Kaggle notebook, then connect here. Tokens stay in this app session.</p>
+ <label for="hunyuanModels">Saved generated models</label><select id="hunyuanModels"></select><button id="previewHunyuan" disabled>Preview selected model</button>
+ <canvas id="hunyuanPreview" width="400" height="300" style="width:100%;max-width:400px;height:300px" aria-label="Generated model preview"></canvas>
+ <div class="row"><button id="useHunyuan" disabled>Use reviewed model on projection</button><button id="saveHunyuan" disabled>Save GLB copy</button></div>`;
+ document.querySelector('.monitors-panel').append(panel);const el=id=>document.getElementById(id);let connected=false,busy=false,generating=false,models=[],selected=null,viewer=null,revision=0;
+ function status(message){el('hunyuanStatus').textContent=message;}
+ function controls(){for(const id of ['connectHunyuan','hunyuanUrl','hunyuanToken','hunyuanMode','hunyuanPrompt','hunyuanImage','hunyuanSteps','hunyuanSeed'])el(id).disabled=busy;el('generateHunyuan').disabled=busy||!connected;el('cancelHunyuan').disabled=!generating;el('useHunyuan').disabled=busy||!selected;el('saveHunyuan').disabled=busy||!selected;el('previewHunyuan').disabled=busy||!models.length;el('hunyuanModels').disabled=busy;}
+ async function refresh(id){models=await studio.listHunyuanModels();el('hunyuanModels').replaceChildren();for(const model of models){const option=document.createElement('option');option.value=model.id;option.textContent=model.name;el('hunyuanModels').append(option);}if(id)el('hunyuanModels').value=id;controls();}
+ async function preview(model){const request=++revision;selected=null;controls();try{if(!viewer){const {createAvatar}=await import('./dist/avatar.js');viewer=createAvatar(el('hunyuanPreview'));}await viewer.loadModel(model.url);if(request!==revision)return;selected=model;status('Model ready for review. Projection has not changed.');}catch{status('Could not preview this model. Generate another model or check local GPU rendering.');}controls();}
+ el('connectHunyuan').onclick=async()=>{const config={url:el('hunyuanUrl').value.trim(),token:el('hunyuanToken').value};el('hunyuanToken').value='';busy=true;connected=false;controls();status('Connecting to your GPU session…');try{const result=await studio.connectHunyuan(config);connected=true;status('Connected: '+result.model+'. Model downloads on the first generation can take several minutes.');}catch(error){status(error.message);}finally{busy=false;controls();}};
+ el('hunyuanImage').onclick=async()=>{try{const file=await studio.chooseHunyuanImage();if(file)el('hunyuanImageName').textContent=file.name;}catch(error){status(error.message);}};
+ el('generateHunyuan').onclick=async()=>{busy=true;generating=true;controls();status('Queued / generating on Kaggle. The first run downloads model weights. Keep the notebook running; projection is unchanged.');try{const model=await studio.generateHunyuan({mode:el('hunyuanMode').value,prompt:el('hunyuanPrompt').value,seed:Number(el('hunyuanSeed').value),steps:Number(el('hunyuanSteps').value)});await refresh(model.id);await preview(model);}catch(error){status(error.message);}finally{busy=false;generating=false;controls();}};
+ el('cancelHunyuan').onclick=()=>{el('cancelHunyuan').disabled=true;void studio.cancelHunyuan();status('Cancellation requested. A GPU operation already running may finish before it can release memory.');};
+ el('previewHunyuan').onclick=()=>{const model=models.find(row=>row.id===el('hunyuanModels').value);if(model)void preview(model);};
+ el('hunyuanModels').onchange=()=>{revision++;selected=null;controls();};
+ el('useHunyuan').onclick=()=>{if(!selected)return;window.gen3dPresenter.model=selected.url;avatar=true;el('avBtn').textContent='Hide presenter';el('avBtn').classList.add('on');render();status('Reviewed model applied to projection. Generated meshes do not include automatic rigging or mouth animation.');};
+ el('saveHunyuan').onclick=async()=>{if(!selected)return;try{if(await studio.saveHunyuanModel(selected.id))status('GLB copy saved. The generated model remains in your local library.');}catch(error){status(error.message);}};
+ if(!window.studio?.connectHunyuan){for(const input of panel.querySelectorAll('input,button,select,textarea'))input.disabled=true;status('Online 3D Studio is available in the GEN3D desktop app.');}else void refresh().catch(()=>status('Could not open the generated model library.'));
+ window.addEventListener('unload',()=>viewer?.dispose());
+})();

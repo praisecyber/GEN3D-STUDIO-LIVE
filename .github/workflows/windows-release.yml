@@ -46,7 +46,8 @@ jobs:
           Copy-Item "desktop/release/GEN3D Studio Live Setup $version.exe" "downloads/GEN3D-Studio-Live-$version-Windows-x64.exe"
           'Run the EXE to install. This is an unsigned development preview. Physical device acceptance remains outstanding. NDI needs a separate NDI 6 runtime; static PowerPoint import needs Microsoft PowerPoint.' | Set-Content downloads/INSTALL.txt
           Compress-Archive -Path "downloads/GEN3D-Studio-Live-$version-Windows-x64.exe", downloads/INSTALL.txt -DestinationPath "downloads/GEN3D-Studio-Live-$version-Windows-x64.zip"
-          Get-ChildItem downloads -File | Where-Object { $_.Extension -in '.exe', '.zip' } | ForEach-Object { $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(); "$hash  $($_.Name)" } | Set-Content downloads/SHA256SUMS.txt
+          if (Test-Path cloud/hunyuan3d/GEN3D-Kaggle.ipynb) { Copy-Item cloud/hunyuan3d/GEN3D-Kaggle.ipynb downloads/GEN3D-Kaggle.ipynb }
+          Get-ChildItem downloads -File | Where-Object { $_.Extension -in '.exe', '.zip', '.ipynb' } | ForEach-Object { $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(); "$hash  $($_.Name)" } | Set-Content downloads/SHA256SUMS.txt
           "GEN3D_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
       - uses: actions/upload-artifact@v4
         with:
@@ -63,10 +64,19 @@ jobs:
           $tag = "v$env:GEN3D_VERSION"
           gh release view $tag --json isDraft | Out-Null
           if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --target $env:GITHUB_SHA --draft --prerelease --title "GEN3D Studio Live $env:GEN3D_VERSION - Development Preview" --notes 'Unsigned Windows development build. Physical Windows/Android acceptance and full vendor compatibility remain outstanding. See docs/RELEASE-READINESS.md. This release was built on GitHub Windows runners.'
+            $releaseNotes = "docs/releases/$env:GEN3D_VERSION.md"
+            if (Test-Path $releaseNotes) {
+              gh release create $tag --target $env:GITHUB_SHA --draft --prerelease --title "GEN3D Studio Live $env:GEN3D_VERSION - Development Preview" --notes-file $releaseNotes
+            } else {
+              gh release create $tag --target $env:GITHUB_SHA --draft --prerelease --title "GEN3D Studio Live $env:GEN3D_VERSION - Development Preview" --notes 'Unsigned Windows development build. Physical Windows/Android acceptance and full vendor compatibility remain outstanding. See docs/RELEASE-READINESS.md. This release was built on GitHub Windows runners.'
+            }
             if ($LASTEXITCODE -ne 0) { throw 'Release creation failed' }
           }
           gh release upload $tag "downloads/GEN3D-Studio-Live-$env:GEN3D_VERSION-Windows-x64.exe" "downloads/GEN3D-Studio-Live-$env:GEN3D_VERSION-Windows-x64.zip" downloads/SHA256SUMS.txt --clobber
           if ($LASTEXITCODE -ne 0) { throw 'Release asset upload failed' }
+          if (Test-Path downloads/GEN3D-Kaggle.ipynb) {
+            gh release upload $tag downloads/GEN3D-Kaggle.ipynb --clobber
+            if ($LASTEXITCODE -ne 0) { throw 'Notebook upload failed' }
+          }
           gh release edit $tag --draft=false --prerelease
           if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }

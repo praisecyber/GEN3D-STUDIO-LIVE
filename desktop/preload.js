@@ -63,6 +63,12 @@ contextBridge.exposeInMainWorld('studio', {
   stageDisplays:()=>ipcRenderer.invoke('stageDisplays'),
   configureStageDisplay:(action,config)=>ipcRenderer.invoke('configureStageDisplay',{action,config}),
   onStageLayout:f=>ipcRenderer.on('stageLayout',(_e,layout)=>f(layout)),
+  connectHunyuan:config=>ipcRenderer.invoke('connectHunyuan',config),
+  chooseHunyuanImage:()=>ipcRenderer.invoke('chooseHunyuanImage'),
+  generateHunyuan:config=>ipcRenderer.invoke('generateHunyuan',config),
+  cancelHunyuan:()=>ipcRenderer.invoke('cancelHunyuan'),
+  listHunyuanModels:()=>ipcRenderer.invoke('listHunyuanModels'),
+  saveHunyuanModel:id=>ipcRenderer.invoke('saveHunyuanModel',id),
   info: () => ipcRenderer.invoke('info'),
   openExternal: url => ipcRenderer.invoke('openExternal', url)
 });

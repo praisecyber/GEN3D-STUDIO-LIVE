@@ -1,3 +1,11 @@
+# Latest: 0.11.0 Online 3D Studio development preview
+
+The 0.11.0 desktop adds the official Hunyuan3D-2mini Kaggle adapter, composed text-to-reference-to-mesh workflow, image-to-mesh workflow, authenticated jobs, cancellation, GLB validation/storage/export and native review before projection. Model weights are not included. The full 77-test JavaScript suite, projection UI regression, native online-3D integration and six Python service tests passed locally. Python service tests used the pinned FastAPI/Uvicorn/Pillow versions in an isolated environment. Tests use synthetic inference, not generated Hunyuan output.
+
+Actual GPU inference and the complete Kaggle dependency/model-download/tunnel workflow are unverified: this workspace has neither CUDA nor a connected Kaggle account. Texture generation, automatic rigging and singing are not provided. Kaggle sessions and free-GPU quotas are temporary/provider-controlled. See [setup and limits](HUNYUAN3D-ONLINE.md), the supplied notebook and [0.11.0 release notes](releases/0.11.0.md). Windows build results and hashes for downloadable releases are supplied by GitHub Actions/release assets; the earlier artifact manifest is historical.
+
+The earlier validation matrix below remains the 0.10.x baseline and does not establish physical acceptance for 0.11.0.
+
 # GEN3D 0.10.1 desktop development-build evidence
 
 GEN3D is an independently implemented development preview. This document distinguishes implemented workflows, executed checks and remaining acceptance work. It does not assert complete Holyrics parity or production certification.

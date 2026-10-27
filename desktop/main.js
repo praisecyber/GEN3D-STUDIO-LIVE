@@ -288,3 +288,14 @@ app.on('before-quit',event=>{if(!event.defaultPrevented&&stageDisplays){stageDis
 let ndiQuitting=false;app.on('before-quit',event=>{if(event.defaultPrevented)return;if(ndiInputs.sessions.size&&!ndiQuitting){event.preventDefault();ndiQuitting=true;void ndiInputs.dispose().finally(()=>app.quit());}});
 
 app.on('before-quit',()=>holyricsImport.cancel());
+
+// Online generation credentials stay in the main process for this session only.
+const {HunyuanClient}=require('./hunyuan-client');
+const hunyuan=new HunyuanClient(()=>path.join(app.getPath('userData'),'generated3d'));
+ipcMain.handle('connectHunyuan',(event,config)=>{requireStageOperator(event);return hunyuan.connect(config);});
+ipcMain.handle('chooseHunyuanImage',async event=>{requireStageOperator(event);const result=await dialog.showOpenDialog(operator,{title:'Reference image for Hunyuan3D',properties:['openFile'],filters:[{name:'PNG or JPEG',extensions:['png','jpg','jpeg']}]});if(result.canceled||!result.filePaths[0])return null;return hunyuan.setImage(result.filePaths[0]);});
+ipcMain.handle('generateHunyuan',(event,config)=>{requireStageOperator(event);return hunyuan.generate(config);});
+ipcMain.handle('cancelHunyuan',event=>{requireStageOperator(event);hunyuan.cancel();});
+ipcMain.handle('listHunyuanModels',event=>{requireStageOperator(event);return hunyuan.list();});
+ipcMain.handle('saveHunyuanModel',async(event,id)=>{requireStageOperator(event);if(typeof id!=='string'||!/^[0-9a-f-]{36}$/.test(id))throw Error('Choose a generated model.');const result=await dialog.showSaveDialog(operator,{title:'Save generated model',defaultPath:'GEN3D-Hunyuan.glb',filters:[{name:'GLB model',extensions:['glb']}]});if(result.canceled||!result.filePath)return false;await hunyuan.export(id,result.filePath);return true;});
+app.on('before-quit',()=>hunyuan.cancel());
