@@ -44,7 +44,7 @@ class ServiceTests(unittest.TestCase):
     def setUp(self):
         self.directory = tempfile.TemporaryDirectory()
         self.engine = Engine()
-        self.client = TestClient(create_app(self.engine, TOKEN, self.directory.name, ttl=0.05))
+        self.client = TestClient(create_app(self.engine, TOKEN, self.directory.name, 'GEN3D synthetic test provider', ttl=0.05))
         self.client.__enter__()
         self.headers = {'Authorization': 'Bearer ' + TOKEN}
     def tearDown(self):

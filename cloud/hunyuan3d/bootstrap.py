@@ -25,6 +25,9 @@ def start():
     token = UserSecretsClient().get_secret('GEN3D_GPU_TOKEN')
     if not 32 <= len(token) <= 512 or any(c in token for c in '\r\n'):
         raise RuntimeError('Add GEN3D_GPU_TOKEN in Kaggle Secrets (32–512 characters).')
+    provider = os.environ.get('GEN3D_PROVIDER_NAME', '').strip()
+    if not provider or len(provider) > 200 or any(ord(c) < 32 for c in provider):
+        raise RuntimeError('Enter the full legal name of the GPU service provider in the setup cell.')
     project = Path(__file__).resolve().parent
     working = Path('/kaggle/working')
     repository = working / 'Hunyuan3D-2'

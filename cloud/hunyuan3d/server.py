@@ -21,9 +21,12 @@ MAX_MODEL = 100 * 1024 * 1024
 Image.MAX_IMAGE_PIXELS = 16_000_000
 
 
-def create_app(engine, token, root, ttl=3600):
+def create_app(engine, token, root, provider, ttl=3600):
     if not isinstance(token, str) or len(token) < 32 or len(token) > 512 or any(x in token for x in '\r\n'):
         raise ValueError('Configure a 32–512 character GPU token through Kaggle Secrets.')
+    if not isinstance(provider, str) or not provider.strip() or len(provider) > 200 or any(ord(c) < 32 for c in provider):
+        raise ValueError('Configure the full legal name of the GPU service provider.')
+    provider = provider.strip()
     root = Path(root)
     root.mkdir(parents=True, exist_ok=True)
     jobs, lock, work = {}, threading.RLock(), queue.Queue(maxsize=3)
@@ -103,7 +106,7 @@ def create_app(engine, token, root, ttl=3600):
 
     @app.get('/v1/health')
     def health():
-        return {'service': 'gen3d-hunyuan', 'protocol': 1, 'ready': engine.ready(), 'model': engine.model, 'modes': ['text', 'image'], 'textured': False}
+        return {'service': 'gen3d-hunyuan', 'protocol': 1, 'ready': engine.ready(), 'model': engine.model, 'provider': provider, 'modes': ['text', 'image'], 'textured': False}
 
     @app.post('/v1/jobs', status_code=202)
     async def submit(request: Request):
@@ -189,7 +192,7 @@ def main():
     engine = HunyuanEngine()
     if not engine.ready():
         raise SystemExit('Select a Kaggle CUDA GPU before starting this service.')
-    app = create_app(engine, os.environ.get('GEN3D_GPU_TOKEN', ''), os.environ.get('GEN3D_JOB_DIR', '/kaggle/working/gen3d-jobs'))
+    app = create_app(engine, os.environ.get('GEN3D_GPU_TOKEN', ''), os.environ.get('GEN3D_JOB_DIR', '/kaggle/working/gen3d-jobs'), os.environ.get('GEN3D_PROVIDER_NAME', ''))
     uvicorn.run(app, host='127.0.0.1', port=7860, access_log=False)
 
 
