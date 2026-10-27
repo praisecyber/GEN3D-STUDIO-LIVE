@@ -1,0 +1,80 @@
+{
+  "title": "GEN3D Online 3D Studio \u2014 Setup and Use",
+  "version": "0.11.0",
+  "format": "1920x1080 / H.264 / AAC / English synthetic narration / burned-in captions",
+  "note": "Real app UI with a clearly labelled procedural sample. No Kaggle website recording or real Hunyuan inference is claimed.",
+  "chapters": [
+    {
+      "start": 0.0,
+      "title": "Online 3D Studio",
+      "duration": 16.625
+    },
+    {
+      "start": 16.625,
+      "title": "Download both files",
+      "duration": 15.07
+    },
+    {
+      "start": 31.695,
+      "title": "Prepare Kaggle",
+      "duration": 20.765
+    },
+    {
+      "start": 52.46,
+      "title": "Keep your token private",
+      "duration": 18.275
+    },
+    {
+      "start": 70.735,
+      "title": "Run the notebook",
+      "duration": 19.265
+    },
+    {
+      "start": 90.0,
+      "title": "Connect GEN3D",
+      "duration": 18.175
+    },
+    {
+      "start": 108.175,
+      "title": "Create from text",
+      "duration": 19.665
+    },
+    {
+      "start": 127.84,
+      "title": "Create from an image",
+      "duration": 19.67
+    },
+    {
+      "start": 147.51,
+      "title": "Review before going live",
+      "duration": 17.7
+    },
+    {
+      "start": 165.21,
+      "title": "Save or use the model",
+      "duration": 19.105
+    },
+    {
+      "start": 184.315,
+      "title": "Cancel and reconnect",
+      "duration": 19.41
+    },
+    {
+      "start": 203.725,
+      "title": "What is verified?",
+      "duration": 22.495
+    }
+  ],
+  "files": [
+    {
+      "name": "GEN3D-Online-3D-Studio-Tutorial.mp4",
+      "bytes": 6819636,
+      "sha256": "473694b105e83a924a146eca471ba3dc8d1d6b8e4e43ae7929c27c38f74a7236"
+    },
+    {
+      "name": "GEN3D-Online-3D-Studio-Tutorial.srt",
+      "bytes": 5021,
+      "sha256": "1cd916ff1fc7e812a850deeef694ee981794a2af381c83e450431a36122928ad"
+    }
+  ]
+}

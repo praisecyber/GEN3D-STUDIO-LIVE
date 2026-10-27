@@ -1,0 +1,202 @@
+1
+00:00:00,000 --> 00:00:04,844
+Welcome to Gen three D Studio Live. This guide shows how to set up
+
+2
+00:00:04,844 --> 00:00:09,689
+online three D generation using your own Kaggle GPU session. The app screens are
+
+3
+00:00:09,689 --> 00:00:14,533
+real. The preview model is an illustrative sample, not proof of a successful live
+
+4
+00:00:14,533 --> 00:00:15,225
+Hunyuan generation.
+
+5
+00:00:16,625 --> 00:00:21,661
+Open the version zero point eleven release on GitHub. Download the Windows installer
+and
+
+6
+00:00:21,661 --> 00:00:26,698
+the Kaggle notebook. Run the installer on your PC. If you choose the zip
+
+7
+00:00:26,698 --> 00:00:30,295
+instead, extract it first. This is an unsigned development preview.
+
+8
+00:00:31,695 --> 00:00:37,857
+In your Kaggle account, create a notebook and import the downloaded notebook file.
+Select
+
+9
+00:00:37,857 --> 00:00:44,018
+a CUDA GPU accelerator, and enable Internet. GPU access may require account
+verification. Availability,
+
+10
+00:00:44,018 --> 00:00:50,180
+quotas, and session time limits are controlled by Kaggle. Free GPU access is not
+
+11
+00:00:50,180 --> 00:00:51,060
+permanent hosting.
+
+12
+00:00:52,460 --> 00:00:57,281
+Open Kaggle's Secrets interface, usually under Add ons. Create the secret named on
+screen,
+
+13
+00:00:57,281 --> 00:01:02,103
+using a unique random value of at least thirty two characters. Enable it for
+
+14
+00:01:02,103 --> 00:01:06,924
+this notebook. Keep the same value securely for the desktop app. Never paste it
+
+15
+00:01:06,924 --> 00:01:09,335
+into a public notebook cell or GitHub.
+
+16
+00:01:10,735 --> 00:01:15,282
+Run the setup cell and enter the full legal name of the person or
+
+17
+00:01:15,282 --> 00:01:19,830
+organization operating your GPU service. Then run the server cell and leave it
+running.
+
+18
+00:01:19,830 --> 00:01:24,377
+Setup checks CUDA and dependencies. Copy the H T T P S connection URL
+
+19
+00:01:24,377 --> 00:01:28,600
+it prints. The first generation downloads model weights and may take several
+minutes.
+
+20
+00:01:30,000 --> 00:01:34,793
+In Gen three D, open Projection Studio and expand Online three D Studio, Hunyuan
+
+21
+00:01:34,793 --> 00:01:39,586
+three D. Paste the connection URL printed by your own running notebook. Enter the
+
+22
+00:01:39,586 --> 00:01:44,379
+same private token and choose Connect GPU. The token field clears after submission.
+Do
+
+23
+00:01:44,379 --> 00:01:46,775
+not use somebody else's URL or token.
+
+24
+00:01:48,175 --> 00:01:53,189
+For text, choose Text description. Describe one complete object, such as a friendly
+orange
+
+25
+00:01:53,189 --> 00:01:58,203
+robot on a plain background. Start with thirty shape steps and seed zero, then
+
+26
+00:01:58,203 --> 00:02:03,217
+choose Generate three D model. The backend first creates a reference image with S
+
+27
+00:02:03,217 --> 00:02:06,440
+D X L Turbo, then builds a Hunyuan mesh.
+
+28
+00:02:07,840 --> 00:02:12,666
+For image input, choose Reference image, then choose a P N G or J
+
+29
+00:02:12,666 --> 00:02:17,492
+peg file. Use one clearly visible subject with as little background clutter as
+possible.
+
+30
+00:02:17,492 --> 00:02:22,318
+The file limit is ten megabytes and sixteen megapixels. Choose Generate three D
+model
+
+31
+00:02:22,318 --> 00:02:26,110
+after selecting your image. Wait for the GPU job to finish.
+
+32
+00:02:27,510 --> 00:02:32,471
+When a job succeeds, the model downloads into your local library. Review it in
+
+33
+00:02:32,471 --> 00:02:37,432
+the preview before using it. This video uses a procedural sample robot to explain
+
+34
+00:02:37,432 --> 00:02:42,393
+the controls. It is not Hunyuan output. Generating and previewing a model do not
+
+35
+00:02:42,393 --> 00:02:43,810
+change your live projection.
+
+36
+00:02:45,210 --> 00:02:50,167
+Choose Save G L B copy to export the model to a folder. Choose
+
+37
+00:02:50,167 --> 00:02:55,125
+Use reviewed model on projection only when you are ready to show it. That
+
+38
+00:02:55,125 --> 00:03:00,082
+explicit action changes projection. The sample on screen demonstrates this control.
+Generated meshes are
+
+39
+00:03:00,082 --> 00:03:02,915
+not automatically rigged, animated, or able to sing.
+
+40
+00:03:04,315 --> 00:03:09,461
+Use Cancel if you no longer need a job. A GPU operation already running
+
+41
+00:03:09,461 --> 00:03:14,606
+may finish before cancellation can discard its result. If Kaggle stops or restarts,
+run
+
+42
+00:03:14,606 --> 00:03:19,752
+the notebook again and reconnect using its new URL. Models already downloaded remain
+on
+
+43
+00:03:19,752 --> 00:03:22,325
+your PC and can be reviewed offline.
+
+44
+00:03:23,725 --> 00:03:29,516
+If connection fails, check the URL, token, Internet access, and running server cell.
+If
+
+45
+00:03:29,516 --> 00:03:35,307
+generation fails, inspect the G P U log in Kaggle. This profile creates untextured,
+
+46
+00:03:35,307 --> 00:03:41,097
+unrigged meshes. Automated app and service tests passed, but actual inference on
+Kaggle hardware
+
+47
+00:03:41,097 --> 00:03:44,820
+remains unverified. Use the linked setup guide for details.

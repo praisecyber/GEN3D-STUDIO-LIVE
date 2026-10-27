@@ -1,0 +1,184 @@
+[
+  {
+    "title": "Online 3D Studio",
+    "label": "START HERE",
+    "kind": "intro",
+    "bullets": [
+      "GEN3D Studio Live 0.11.0",
+      "Text or image \u2192 3D mesh",
+      "Kaggle runs the AI; your PC runs GEN3D"
+    ],
+    "narration": "Welcome to Gen three D Studio Live. This guide shows how to set up online three D generation using your own Kaggle GPU session. The app screens are real. The preview model is an illustrative sample, not proof of a successful live Hunyuan generation."
+  },
+  {
+    "title": "Download both files",
+    "label": "01 \u00b7 GITHUB",
+    "kind": "downloads",
+    "bullets": [
+      "Windows installer: version 0.11.0",
+      "Notebook: GEN3D-Kaggle.ipynb",
+      "Install GEN3D on your Windows PC"
+    ],
+    "narration": "Open the version zero point eleven release on GitHub. Download the Windows installer and the Kaggle notebook. Run the installer on your PC. If you choose the zip instead, extract it first. This is an unsigned development preview."
+  },
+  {
+    "title": "Prepare Kaggle",
+    "label": "02 \u00b7 KAGGLE",
+    "kind": "kaggle",
+    "bullets": [
+      "Create a notebook and import the .ipynb",
+      "Enable a CUDA GPU accelerator",
+      "Enable Internet access"
+    ],
+    "narration": "In your Kaggle account, create a notebook and import the downloaded notebook file. Select a CUDA GPU accelerator, and enable Internet. GPU access may require account verification. Availability, quotas, and session time limits are controlled by Kaggle. Free GPU access is not permanent hosting."
+  },
+  {
+    "title": "Keep your token private",
+    "label": "03 \u00b7 KAGGLE SECRETS",
+    "kind": "secret",
+    "bullets": [
+      "Secret name: GEN3D_GPU_TOKEN",
+      "Use a unique random value: 32\u2013512 characters",
+      "Enable access for this notebook",
+      "Keep the same value for the desktop app"
+    ],
+    "narration": "Open Kaggle's Secrets interface, usually under Add ons. Create the secret named on screen, using a unique random value of at least thirty two characters. Enable it for this notebook. Keep the same value securely for the desktop app. Never paste it into a public notebook cell or GitHub."
+  },
+  {
+    "title": "Run the notebook",
+    "label": "04 \u00b7 START THE GPU SERVICE",
+    "kind": "notebook",
+    "bullets": [
+      "Run setup and enter your provider name",
+      "Run the server cell; leave it running",
+      "Copy the printed HTTPS connection URL",
+      "First use downloads several GB of weights"
+    ],
+    "narration": "Run the setup cell and enter the full legal name of the person or organization operating your GPU service. Then run the server cell and leave it running. Setup checks CUDA and dependencies. Copy the H T T P S connection URL it prints. The first generation downloads model weights and may take several minutes."
+  },
+  {
+    "title": "Connect GEN3D",
+    "label": "05 \u00b7 DESKTOP APP",
+    "kind": "ui",
+    "image": "02-connect.png",
+    "crop": [
+      0,
+      200,
+      399,
+      357
+    ],
+    "bullets": [
+      "Projection Studio \u2192 Online 3D Studio",
+      "Paste your notebook's HTTPS URL",
+      "Enter the same token \u2192 Connect GPU",
+      "The token field clears after submission"
+    ],
+    "narration": "In Gen three D, open Projection Studio and expand Online three D Studio, Hunyuan three D. Paste the connection URL printed by your own running notebook. Enter the same private token and choose Connect GPU. The token field clears after submission. Do not use somebody else's URL or token."
+  },
+  {
+    "title": "Create from text",
+    "label": "06 \u00b7 TEXT \u2192 3D",
+    "kind": "ui",
+    "image": "03-text.png",
+    "crop": [
+      0,
+      365,
+      399,
+      803
+    ],
+    "fixture": true,
+    "bullets": [
+      "Choose Text description",
+      "Describe one complete, isolated object",
+      "Start with 30 steps and seed 0",
+      "Select Generate 3D model"
+    ],
+    "narration": "For text, choose Text description. Describe one complete object, such as a friendly orange robot on a plain background. Start with thirty shape steps and seed zero, then choose Generate three D model. The backend first creates a reference image with S D X L Turbo, then builds a Hunyuan mesh."
+  },
+  {
+    "title": "Create from an image",
+    "label": "07 \u00b7 IMAGE \u2192 3D",
+    "kind": "ui",
+    "image": "05-image.png",
+    "crop": [
+      0,
+      365,
+      399,
+      803
+    ],
+    "fixture": true,
+    "bullets": [
+      "Choose Reference image",
+      "Select a PNG or JPEG of one subject",
+      "Maximum: 10 MB and 16 megapixels",
+      "Then choose Generate 3D model"
+    ],
+    "narration": "For image input, choose Reference image, then choose a P N G or J peg file. Use one clearly visible subject with as little background clutter as possible. The file limit is ten megabytes and sixteen megapixels. Choose Generate three D model after selecting your image. Wait for the GPU job to finish."
+  },
+  {
+    "title": "Review before going live",
+    "label": "08 \u00b7 MODEL PREVIEW",
+    "kind": "ui",
+    "image": "04-review.png",
+    "crop": [
+      0,
+      830,
+      399,
+      1293
+    ],
+    "fixture": true,
+    "bullets": [
+      "Completed downloads enter your local library",
+      "Inspect the model in the preview",
+      "Preview does not change live projection",
+      "Shown here: a procedural sample, not AI output"
+    ],
+    "narration": "When a job succeeds, the model downloads into your local library. Review it in the preview before using it. This video uses a procedural sample robot to explain the controls. It is not Hunyuan output. Generating and previewing a model do not change your live projection."
+  },
+  {
+    "title": "Save or use the model",
+    "label": "09 \u00b7 EXPLICIT LIVE CONTROL",
+    "kind": "output",
+    "image": "06-output.png",
+    "fixture": true,
+    "bullets": [
+      "Save GLB copy \u2192 choose a folder",
+      "Use reviewed model on projection \u2192 goes live",
+      "Generated meshes are not automatically rigged",
+      "No automatic mouth animation or singing"
+    ],
+    "narration": "Choose Save G L B copy to export the model to a folder. Choose Use reviewed model on projection only when you are ready to show it. That explicit action changes projection. The sample on screen demonstrates this control. Generated meshes are not automatically rigged, animated, or able to sing."
+  },
+  {
+    "title": "Cancel and reconnect",
+    "label": "10 \u00b7 SESSION CONTROL",
+    "kind": "ui",
+    "image": "03-text.png",
+    "crop": [
+      0,
+      620,
+      399,
+      850
+    ],
+    "fixture": true,
+    "bullets": [
+      "Cancel requests disposal of the current job",
+      "A running GPU operation may finish first",
+      "Restarted notebook? Reconnect with its new URL",
+      "Downloaded models remain on your PC"
+    ],
+    "narration": "Use Cancel if you no longer need a job. A GPU operation already running may finish before cancellation can discard its result. If Kaggle stops or restarts, run the notebook again and reconnect using its new URL. Models already downloaded remain on your PC and can be reviewed offline."
+  },
+  {
+    "title": "What is verified?",
+    "label": "LIMITS & TROUBLESHOOTING",
+    "kind": "finish",
+    "bullets": [
+      "Connection failure: check URL, token and server cell",
+      "Job failure: inspect gen3d-gpu.log in Kaggle",
+      "Current output: untextured, unrigged GLB meshes",
+      "Actual inference on Kaggle remains unverified"
+    ],
+    "narration": "If connection fails, check the URL, token, Internet access, and running server cell. If generation fails, inspect the G P U log in Kaggle. This profile creates untextured, unrigged meshes. Automated app and service tests passed, but actual inference on Kaggle hardware remains unverified. Use the linked setup guide for details."
+  }
+]

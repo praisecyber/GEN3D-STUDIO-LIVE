@@ -1,0 +1,46 @@
+name: Publish Online 3D tutorial video
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - docs/tutorials/online-3d/video.json
+      - .github/workflows/tutorial-video.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: online-3d-tutorial-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify video and subtitle checksums
+        run: |
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('docs/tutorials/online-3d')
+          manifest = json.loads((root / 'video.json').read_text())
+          assert manifest['version'] == '0.11.0'
+          for item in manifest['files']:
+              file = root / item['name']
+              assert file.parent == root
+              assert file.stat().st_size == item['bytes']
+              with file.open('rb') as stream:
+                  assert hashlib.file_digest(stream, 'sha256').hexdigest() == item['sha256']
+          print('Verified the tutorial video and captions.')
+          PY
+      - name: Attach video and captions to the existing release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release view v0.11.0 --json isDraft
+          gh release upload v0.11.0 docs/tutorials/online-3d/GEN3D-Online-3D-Studio-Tutorial.mp4 docs/tutorials/online-3d/GEN3D-Online-3D-Studio-Tutorial.srt --clobber
