@@ -1,0 +1,40 @@
+name: Publish real desktop walkthrough
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - docs/tutorials/real-desktop/video.json
+      - .github/workflows/real-desktop-video.yml
+permissions:
+  contents: write
+concurrency:
+  group: real-desktop-video-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify recording checksums
+        run: |
+          python3 - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          root=Path('docs/tutorials/real-desktop')
+          manifest=json.loads((root/'video.json').read_text())
+          assert manifest['version']=='0.11.0'
+          assert manifest['gpu_status'].startswith('No authenticated Kaggle')
+          for item in manifest['files']:
+              file=root/item['name']
+              assert file.parent==root and file.stat().st_size==item['bytes']
+              with file.open('rb') as stream:
+                  assert hashlib.file_digest(stream,'sha256').hexdigest()==item['sha256']
+          PY
+      - name: Upload actual screen recording and captions
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release upload v0.11.0 docs/tutorials/real-desktop/GEN3D-Real-Desktop-Walkthrough.mp4 docs/tutorials/real-desktop/GEN3D-Real-Desktop-Walkthrough.srt --clobber

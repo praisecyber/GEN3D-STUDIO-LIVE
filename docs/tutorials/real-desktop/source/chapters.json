@@ -1,0 +1,56 @@
+[
+  {
+    "id": "intro",
+    "title": "Real desktop recording",
+    "seconds": 14,
+    "narration": "This is a real desktop recording with mouse clicks and typing. I will operate projection and prepare Online three D Studio. No Kaggle GPU session is connected, so generation is not demonstrated."
+  },
+  {
+    "id": "song",
+    "title": "Select a song, preview, then take live",
+    "seconds": 25,
+    "narration": "Start in Projection Studio. Select a song, then click a slide to preview it. Click Take live. Watch the Main Output monitor change to that slide. These are the actual app controls and monitor, not a screenshot placed over the recording."
+  },
+  {
+    "id": "add",
+    "title": "Add your own song",
+    "seconds": 28,
+    "narration": "To add your own song, open Add a song. Enter a title and paste your lyrics. Leave a blank line between slides. Click Add to library. Select a slide, then use Take live when you are ready. These changes stay in this separate recording profile."
+  },
+  {
+    "id": "bible",
+    "title": "Find a Bible verse and take it live",
+    "seconds": 30,
+    "narration": "Open Offline Bible library. The bundled King James Version is already installed. Type John three sixteen and click Search offline. Prepare passage slides, then click the prepared slide and Take live. The actual Main Output monitor now shows the Bible verse."
+  },
+  {
+    "id": "online",
+    "title": "Find Online 3D Studio",
+    "seconds": 20,
+    "narration": "Now scroll down in the Output monitors column and open Online three D Studio. This is the actual connection form. A real running Kaggle notebook must supply the H T T P S URL and private access token. I will not fake a connected GPU here."
+  },
+  {
+    "id": "text",
+    "title": "Enter a real text request",
+    "seconds": 23,
+    "narration": "For a text request, choose Text description and type a description of one complete object. I am entering a friendly orange robot on a plain background. Start with thirty shape steps and seed zero. Generate remains disabled until a real GPU service is connected."
+  },
+  {
+    "id": "image",
+    "title": "Choose a reference through the real file picker",
+    "seconds": 27,
+    "narration": "For an image request, choose Reference image, then open the real file picker. I am selecting a reference image supplied with the official Hunyuan examples. The filename appears when the app accepts it. Selecting an image does not upload it or generate a mesh."
+  },
+  {
+    "id": "connection",
+    "title": "The real Kaggle connection is still required",
+    "seconds": 24,
+    "narration": "Before generation can run, start the supplied notebook in your own Kaggle account, with GPU and Internet enabled. Configure its private token in Kaggle Secrets. Enter the notebook's printed URL and the same token here, then connect. No authenticated Kaggle session is available in this recording."
+  },
+  {
+    "id": "finish",
+    "title": "End of the real desktop walkthrough",
+    "seconds": 15,
+    "narration": "This recording demonstrated actual desktop operation, without mock generation. The live GPU generation, waiting for a mesh, and reviewing that real result still require a connected Kaggle session. The setup guide and notebook are linked beside this video on GitHub."
+  }
+]

@@ -1,4 +1,6 @@
-# GEN3D Online 3D Studio — video tutorial
+# GEN3D Online 3D Studio — narrated setup guide
+
+For actual screen footage with mouse clicks and typing, see the [real desktop walkthrough](../real-desktop/README.md). This earlier guide uses narrated screenshots.
 
 [![Watch the tutorial](images/poster.jpg)](https://github.com/praisecyber/GEN3D-STUDIO-LIVE/releases/download/v0.11.0/GEN3D-Online-3D-Studio-Tutorial.mp4)
 

@@ -1,0 +1,75 @@
+{
+  "title": "GEN3D real desktop walkthrough",
+  "version": "0.11.0",
+  "duration_seconds": 209.9,
+  "recording": "Continuous X11 desktop capture with real OS mouse clicks, keyboard typing and the native file picker; English synthetic narration. Recorded on Linux; Windows native dialogs may look different.",
+  "gpu_status": "No authenticated Kaggle session or CUDA GPU available. No mock service, GLB fixture or generated-result substitute used. Real GPU generation is NOT demonstrated.",
+  "chapters": [
+    {
+      "id": "intro",
+      "title": "Real desktop recording",
+      "start": 0,
+      "duration": 14.73
+    },
+    {
+      "id": "song",
+      "title": "Select a song, preview, then take live",
+      "start": 14.73,
+      "duration": 25
+    },
+    {
+      "id": "add",
+      "title": "Add your own song",
+      "start": 39.73,
+      "duration": 28
+    },
+    {
+      "id": "bible",
+      "title": "Find a Bible verse and take it live",
+      "start": 67.73,
+      "duration": 30
+    },
+    {
+      "id": "online",
+      "title": "Find Online 3D Studio",
+      "start": 97.73,
+      "duration": 20
+    },
+    {
+      "id": "text",
+      "title": "Enter a real text request",
+      "start": 117.73,
+      "duration": 23
+    },
+    {
+      "id": "image",
+      "title": "Choose a reference through the real file picker",
+      "start": 140.73,
+      "duration": 27
+    },
+    {
+      "id": "connection",
+      "title": "The real Kaggle connection is still required",
+      "start": 167.73,
+      "duration": 24
+    },
+    {
+      "id": "finish",
+      "title": "End of the real desktop walkthrough",
+      "start": 191.73,
+      "duration": 17.125
+    }
+  ],
+  "files": [
+    {
+      "name": "GEN3D-Real-Desktop-Walkthrough.mp4",
+      "bytes": 5327010,
+      "sha256": "06aaf8ebea4a219ecfeb23017870f6b6b17ce14b7902e388d76452832dc83062"
+    },
+    {
+      "name": "GEN3D-Real-Desktop-Walkthrough.srt",
+      "bytes": 3437,
+      "sha256": "dd77e6fb4689f2305f6e203ca87895f1ca6aa0be83b14653fad2ce013ce0f03c"
+    }
+  ]
+}

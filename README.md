@@ -115,3 +115,5 @@ Run `npm run test:holyrics` for the local protocol/native UI check. Run `GEN3D_N
 Generate untextured GLB meshes through official Hunyuan3D-2mini on your Kaggle GPU. Text prompts first create an SDXL-Turbo reference image. Download the supplied [Kaggle notebook](cloud/hunyuan3d/GEN3D-Kaggle.ipynb) and follow the [setup guide](docs/HUNYUAN3D-ONLINE.md). GPU inference on Kaggle remains unverified; automated integration checks use synthetic fixtures. Kaggle quotas and temporary sessions apply.
 
 Watch the narrated [Online 3D Studio video tutorial](docs/tutorials/online-3d/README.md) for the Kaggle setup and app workflow.
+
+For a real screen recording with mouse clicks, typing, projection output and the native image picker, watch the [actual desktop walkthrough](docs/tutorials/real-desktop/README.md). It does not include a live Kaggle generation.
